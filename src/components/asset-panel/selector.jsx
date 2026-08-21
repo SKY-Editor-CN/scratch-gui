@@ -13,6 +13,8 @@ import styles from './selector.css';
 const Selector = props => {
     const {
         buttons,
+        checkedItems,
+        checkedCount,
         containerRef,
         dragType,
         isRtl,
@@ -23,6 +25,8 @@ const Selector = props => {
         ordering,
         onAddSortable,
         onRemoveSortable,
+        onCheckToggle,
+        onDeleteChecked,
         onDeleteClick,
         onDuplicateClick,
         onExportClick,
@@ -65,6 +69,8 @@ const Selector = props => {
                     >
                         <SpriteSelectorItem
                             asset={item.asset}
+                            checked={onCheckToggle && checkedItems ? checkedItems.has(index) : false}
+                            checkedCount={onDeleteChecked ? checkedCount : 0}
                             className={classNames(styles.listItem, {
                                 [styles.placeholder]: isRelevantDrag && index === draggingIndex
                             })}
@@ -78,7 +84,9 @@ const Selector = props => {
                             number={index + 1 /* 1-indexed */}
                             selected={index === selectedItemIndex}
                             onClick={onItemClick}
+                            onCheckToggle={onCheckToggle ? () => onCheckToggle(index) : null}
                             onDeleteButtonClick={onDeleteClick}
+                            onDeleteChecked={onDeleteChecked}
                             onDuplicateButtonClick={onDuplicateClick}
                             onExportButtonClick={onExportClick}
                         />
@@ -96,6 +104,8 @@ Selector.propTypes = {
         img: PropTypes.string.isRequired,
         onClick: PropTypes.func
     })),
+    checkedItems: PropTypes.object,
+    checkedCount: PropTypes.number,
     containerRef: PropTypes.func,
     dragType: PropTypes.oneOf(Object.keys(DragConstants)),
     draggingIndex: PropTypes.number,
@@ -106,6 +116,8 @@ Selector.propTypes = {
         name: PropTypes.any // modified by folders addon
     })),
     onAddSortable: PropTypes.func,
+    onCheckToggle: PropTypes.func,
+    onDeleteChecked: PropTypes.func,
     onDeleteClick: PropTypes.func,
     onDuplicateClick: PropTypes.func,
     onExportClick: PropTypes.func,

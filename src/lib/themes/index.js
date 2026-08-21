@@ -4,6 +4,14 @@ import * as accentPurple from './accent/purple';
 import * as accentBlue from './accent/blue';
 import * as accentRed from './accent/red';
 import * as accentRainbow from './accent/rainbow';
+import * as accentSkyEngine from './accent/sky-engine';
+import * as accentO2engine from './accent/o2engine';
+import * as accentBilup from './accent/bilup';
+import * as accentAstraEditor from './accent/astraeditor';
+import * as accentFrostEditor from './accent/frost-editor';
+import * as accentCyberCatPink from './accent/cyber-cat-pink';
+import * as accentMikuGreen from './accent/miku-green';
+import * as accentTianyiBlue from './accent/tianyi-blue';
 
 import * as guiLight from './gui/light';
 import * as guiDark from './gui/dark';
@@ -16,13 +24,29 @@ const ACCENT_PURPLE = 'purple';
 const ACCENT_BLUE = 'blue';
 const ACCENT_RED = 'red';
 const ACCENT_RAINBOW = 'rainbow';
+const ACCENT_SKY_EDITOR = 'sky-editor';
+const ACCENT_O2ENGINE = 'o2engine';
+const ACCENT_BILUP = 'bilup';
+const ACCENT_ASTRA_EDITOR = 'astraeditor';
+const ACCENT_FROST_EDITOR = 'frost-editor';
+const ACCENT_CYBER_CAT_PINK = 'cyber-cat-pink';
+const ACCENT_MIKU_GREEN = 'miku-green';
+const ACCENT_TIANYI_BLUE = 'tianyi-blue';
 const ACCENT_MAP = {
     [ACCENT_PURPLE]: accentPurple,
     [ACCENT_BLUE]: accentBlue,
     [ACCENT_RED]: accentRed,
-    [ACCENT_RAINBOW]: accentRainbow
+    [ACCENT_RAINBOW]: accentRainbow,
+    [ACCENT_SKY_EDITOR]: accentSkyEngine,
+    [ACCENT_O2ENGINE]: accentO2engine,
+    [ACCENT_BILUP]: accentBilup,
+    [ACCENT_ASTRA_EDITOR]: accentAstraEditor,
+    [ACCENT_FROST_EDITOR]: accentFrostEditor,
+    [ACCENT_CYBER_CAT_PINK]: accentCyberCatPink,
+    [ACCENT_MIKU_GREEN]: accentMikuGreen,
+    [ACCENT_TIANYI_BLUE]: accentTianyiBlue
 };
-const ACCENT_DEFAULT = ACCENT_RED;
+const ACCENT_DEFAULT = ACCENT_SKY_EDITOR;
 
 const GUI_LIGHT = 'light';
 const GUI_DARK = 'dark';
@@ -150,6 +174,14 @@ export {
     ACCENT_PURPLE,
     ACCENT_BLUE,
     ACCENT_RAINBOW,
+    ACCENT_SKY_EDITOR,
+    ACCENT_O2ENGINE,
+    ACCENT_BILUP,
+    ACCENT_ASTRA_EDITOR,
+    ACCENT_FROST_EDITOR,
+    ACCENT_CYBER_CAT_PINK,
+    ACCENT_MIKU_GREEN,
+    ACCENT_TIANYI_BLUE,
     ACCENT_MAP,
 
     GUI_LIGHT,

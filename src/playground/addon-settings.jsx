@@ -16,7 +16,7 @@
 
 import React from 'react';
 import downloadBlob from '../lib/download-blob.js';
-import Settings from '../addons/settings/settings.jsx';
+import Settings, {initializeAddonSettingsPage} from '../addons/settings/settings.jsx';
 import render from './app-target';
 
 const onExportSettings = settings => {
@@ -24,6 +24,7 @@ const onExportSettings = settings => {
     downloadBlob('turbowarp-addon-settings.json', blob);
 };
 
+initializeAddonSettingsPage();
 render((
     <Settings
         onExportSettings={onExportSettings}

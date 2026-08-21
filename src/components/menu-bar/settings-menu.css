@@ -88,3 +88,308 @@
 .open-link {
     margin-left: 0.5rem;
 }
+
+/* ==== Win11 设置窗口内容面板 ====
+   Format aligned with the original advanced settings page (settings-modal.css):
+   font-size 14px, generous spacing, hover highlight, rounded setting rows. */
+.window-settings {
+    color: $ui-modal-foreground;
+    /* 左右边距与原高级设置页 .body 一致（1.5rem 2.25rem） */
+    padding: 0.5rem 2.25rem 0.75rem;
+    font-size: 14px;
+}
+
+.window-section-title {
+    padding: 0.75rem 1.25rem 0.25rem;
+    font-weight: bold;
+    font-size: 14px;
+    opacity: 0.85;
+    white-space: nowrap;
+}
+
+.window-option {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    padding: 0.5rem 1rem;
+    margin: 0.25rem 0;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.window-option:hover {
+    background-color: $badge-border;
+}
+
+.window-option:has(.selected) {
+    background-color: $badge-background;
+}
+
+.window-option.disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.window-option.disabled:hover {
+    background-color: transparent;
+}
+
+.window-option .check {
+    flex-shrink: 0;
+}
+
+.language-list {
+    max-height: 240px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/* ==== Win11 整合窗口：左侧标签栏 + 右侧内容区 ==== */
+.window-shell {
+    display: flex;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+}
+
+.window-sidebar {
+    flex-shrink: 0;
+    width: 220px;
+    display: flex;
+    flex-direction: column;
+    padding: 8px 0;
+    border-right: 1px solid $ui-black-transparent;
+    background-color: $ui-black-transparent;
+    overflow-y: auto;
+}
+
+/* 浅色模式：左侧栏与内容页一致的白底（默认深色模式保持半透明深色） */
+.window-sidebar-light {
+    background-color: $ui-modal-background;
+}
+
+/* 浅色模式：白底上图标统一渲染为深色（深色模式保持原本的浅色，不加滤镜） */
+.window-sidebar-light .window-tab-icon {
+    filter: brightness(0);
+}
+
+.window-tab {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 10px 16px 10px 48px;
+    text-align: left;
+    border: none;
+    background: transparent;
+    color: $ui-modal-foreground;
+    font: inherit;
+    font-size: .8rem;
+    cursor: default;
+    white-space: nowrap;
+}
+
+.window-tab-icon {
+    flex-shrink: 0;
+}
+
+.window-category {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 10px 16px;
+    text-align: left;
+    border: none;
+    background: transparent;
+    color: $ui-modal-foreground;
+    font: inherit;
+    font-size: .8rem;
+    cursor: default;
+    white-space: nowrap;
+    font-weight: bold;
+}
+
+.window-category:hover {
+    background-color: $badge-border;
+}
+
+.window-category-caret {
+    display: inline-block;
+    width: 14px;
+    flex-shrink: 0;
+    text-align: center;
+    transition: transform .15s ease;
+}
+
+.window-category-caret-expanded {
+    transform: rotate(90deg);
+}
+
+.window-tab:hover {
+    background-color: $badge-border;
+}
+
+.window-tab-active {
+    background-color: $badge-background;
+    font-weight: bold;
+}
+
+/* 浅色模式（白底左栏）：hover 最亮、选中次亮（弱于 hover）。
+   深色模式沿用上方默认：hover=$badge-border、选中=$badge-background，
+   二者在本模式下选中本就弱于 hover，无需覆盖。 */
+.window-sidebar-light .window-category:hover,
+.window-sidebar-light .window-tab:hover {
+    background-color: $badge-background;
+}
+
+.window-sidebar-light .window-tab-active {
+    background-color: $badge-border;
+}
+
+.window-content {
+    flex: 1;
+    min-width: 0;
+    overflow-y: auto;
+}
+
+/* ==== Win11 设置窗口：语言下拉菜单 ==== */
+.language-dropdown {
+    position: relative;
+    padding: 0 0.75rem;
+}
+
+.language-dropdown-button {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .5rem;
+    width: 100%;
+    padding: 0.5rem 1rem;
+    border: 1px solid $ui-black-transparent;
+    border-radius: 4px;
+    background: transparent;
+    color: $ui-modal-foreground;
+    font: inherit;
+    font-size: 14px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.language-dropdown-button:hover {
+    background-color: $badge-border;
+}
+
+.language-dropdown-caret {
+    font-size: .7rem;
+    line-height: 1;
+    transition: transform .15s ease;
+}
+
+.language-dropdown-caret-open {
+    transform: rotate(180deg);
+}
+
+.language-dropdown-menu {
+    position: absolute;
+    left: 8px;
+    right: 8px;
+    top: calc(100% + 2px);
+    max-height: 240px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background-color: $ui-primary;
+    border: 1px solid $ui-black-transparent;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px $ui-black-transparent;
+    z-index: 10;
+}
+
+/* ==== Win11 设置窗口：合并主题页分区标题与分割线 ==== */
+.window-section-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0.75rem 1.25rem 0.25rem;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.window-section-divider {
+    flex-grow: 1;
+    margin-left: 1rem;
+    border-top: 1px dashed $ui-tertiary;
+}
+
+.square-color-icon {
+    width: 24px;
+    height: 24px;
+    border: 3px solid $menu-bar-foreground;
+    box-sizing: border-box;
+}
+
+/* ==== Win11 设置窗口：合并主题页卡片样式（图1 方框） ==== */
+.theme-card-row {
+    display: flex;
+    gap: 8px;
+    padding: 4px 16px 8px;
+}
+
+.theme-card {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 12px 8px;
+    /* 图3样式：浅蓝描边 + 四周半透明柔和光晕，其余保持不变 */
+    border: 2px solid #b0c4de;
+    box-shadow: 0 0 14px rgba(176, 196, 222, 0.45);
+    border-radius: 8px;
+    background-color: $theme-card-background;
+    cursor: pointer;
+    text-align: center;
+    user-select: none;
+}
+
+.theme-card:hover {
+    background-color: $badge-border;
+}
+
+.theme-card-selected {
+    border-color: $theme-card-selected-border;
+}
+
+.theme-card.disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.theme-card-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 26px;
+}
+
+.theme-card-label {
+    font-size: .75rem;
+    line-height: 1.3;
+    word-break: break-word;
+    white-space: normal;
+}
+
+.theme-card-label a {
+    text-decoration: none;
+}
+
+.open-link {
+    cursor: pointer;
+}

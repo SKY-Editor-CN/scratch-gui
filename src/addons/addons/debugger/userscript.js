@@ -95,6 +95,38 @@ export default async function ({ addon, console, msg }) {
   const interfaceHeader = Object.assign(document.createElement("div"), {
     className: addon.tab.scratchClass("card_header-buttons"),
   });
+  // SKYEditor 统一窗口：标题栏复刻 Win11Window 形式（图标+文字 在左，
+  // 后面空一段距离再放 导出/清除/关闭 等按钮）。
+  // 标题元素始终创建，是否显示由 updateSkyMode 根据当前 uiTheme 动态控制，
+  // 保证切换主题后即时生效，不会把 SKYEditor 样式带到 TurboWarp 等其他主题。
+  const skyTitleElement = Object.assign(document.createElement("div"), {
+    className: "sa-debugger-sky-title",
+    style: "display: none",
+  });
+  {
+    const titleIcon = Object.assign(addon.tab.recolorable(), {
+      src: addon.self.getResource("/icons/debug.svg") /* rewritten by pull.js */,
+      draggable: false,
+    });
+    const titleText = Object.assign(document.createElement("span"), {
+      textContent: "调试器",
+    });
+    skyTitleElement.appendChild(titleIcon);
+    skyTitleElement.appendChild(titleText);
+  }
+  interfaceHeader.append(skyTitleElement);
+
+  // 主题变化时实时切换 SKYEditor 窗口样式（sky-editor 专属类 + 标题栏显隐），
+  // 非 sky-editor 主题（如 TurboWarp）下始终恢复为调试器默认样式。
+  const updateSkyMode = () => {
+    const isSky =
+      addon.tab.redux.state.scratchGui &&
+      addon.tab.redux.state.scratchGui.uiTheme === "sky-editor";
+    interfaceContainer.classList.toggle("sa-debugger-sky-window", isSky);
+    skyTitleElement.style.display = isSky ? "" : "none";
+  };
+  addon.tab.redux.addEventListener("statechanged", updateSkyMode);
+  updateSkyMode();
   const tabListElement = Object.assign(document.createElement("ul"), {
     className: "sa-debugger-tabs",
   });
@@ -230,6 +262,63 @@ export default async function ({ addon, console, msg }) {
     icon: addon.self.getResource("/icons/close.svg") /* rewritten by pull.js */,
   });
   closeButton.element.addEventListener("click", () => setInterfaceVisible(false));
+
+  // ===== SKYEditor 窗口控件：最小化/最大化/关闭（仅 sky-editor 主题显示）=====
+  const skyWindowControls = Object.assign(document.createElement("div"), {
+    className: "sa-debugger-sky-controls",
+    style: "display: none",
+  });
+  const createWindowControl = (innerHTML, title, onClick) => {
+    const btn = Object.assign(document.createElement("button"), {
+      type: "button",
+      title,
+      className: "sa-debugger-sky-control",
+      innerHTML,
+    });
+    btn.addEventListener("click", onClick);
+    return btn;
+  };
+  const minimizeControl = createWindowControl(
+    '<svg viewBox="0 0 10 10" width="10" height="10" aria-hidden="true"><path d="M0 5h10" stroke="currentColor" stroke-width="1.1"/></svg>',
+    "最小化",
+    () => {
+      interfaceContainer.classList.remove("sa-debugger-sky-maximized");
+      interfaceContainer.classList.toggle("sa-debugger-sky-minimized");
+    }
+  );
+  const maximizeControl = createWindowControl(
+    '<svg viewBox="0 0 10 10" width="10" height="10" aria-hidden="true"><rect x="0.5" y="0.5" width="9" height="9" fill="none" stroke="currentColor" stroke-width="1"/></svg>',
+    "最大化",
+    () => {
+      interfaceContainer.classList.remove("sa-debugger-sky-minimized");
+      interfaceContainer.classList.toggle("sa-debugger-sky-maximized");
+    }
+  );
+  const closeControl = createWindowControl(
+    '<svg viewBox="0 0 10 10" width="10" height="10" aria-hidden="true"><path d="M0 0l10 10M10 0L0 10" stroke="currentColor" stroke-width="1"/></svg>',
+    "关闭",
+    () => setInterfaceVisible(false)
+  );
+  skyWindowControls.append(minimizeControl, maximizeControl, closeControl);
+  interfaceHeader.append(skyWindowControls);
+
+  // 双击标题栏切换最大化（仅 sky-editor 模式生效）
+  interfaceHeader.addEventListener("dblclick", () => {
+    if (!interfaceContainer.classList.contains("sa-debugger-sky-window")) return;
+    interfaceContainer.classList.remove("sa-debugger-sky-minimized");
+    interfaceContainer.classList.toggle("sa-debugger-sky-maximized");
+  });
+
+  // 主题变化时同步窗口控件显隐；sky 模式下隐藏原文字"关闭"按钮，改用 ✕ 图标控件
+  const refreshWindowControls = (isSky) => {
+    skyWindowControls.style.display = isSky ? "flex" : "none";
+    closeButton.element.style.display = isSky ? "none" : "";
+  };
+  addon.tab.redux.addEventListener("statechanged", refreshWindowControls);
+  refreshWindowControls(
+    addon.tab.redux.state.scratchGui &&
+      addon.tab.redux.state.scratchGui.uiTheme === "sky-editor"
+  );
 
   const originalStep = vm.runtime._step;
   const afterStepCallbacks = [];

@@ -17,6 +17,8 @@ import styles from './target-pane.css';
  * @returns {React.Component} rendered component
  */
 const TargetPane = ({
+    checkedCount,
+    checkedItems,
     editingTarget,
     fileInputRef,
     hoveredTarget,
@@ -29,6 +31,8 @@ const TargetPane = ({
     onChangeSpriteVisibility,
     onChangeSpriteX,
     onChangeSpriteY,
+    onCheckToggle,
+    onDeleteChecked,
     onDeleteSprite,
     onDrop,
     onDuplicateSprite,
@@ -53,6 +57,8 @@ const TargetPane = ({
     >
 
         <SpriteSelectorComponent
+            checkedCount={checkedCount}
+            checkedItems={checkedItems}
             editingTarget={editingTarget}
             hoveredTarget={hoveredTarget}
             raised={raiseSprites}
@@ -67,6 +73,8 @@ const TargetPane = ({
             onChangeSpriteVisibility={onChangeSpriteVisibility}
             onChangeSpriteX={onChangeSpriteX}
             onChangeSpriteY={onChangeSpriteY}
+            onCheckToggle={onCheckToggle}
+            onDeleteChecked={onDeleteChecked}
             onDeleteSprite={onDeleteSprite}
             onDrop={onDrop}
             onDuplicateSprite={onDuplicateSprite}
@@ -126,6 +134,8 @@ const spriteShape = PropTypes.shape({
 });
 
 TargetPane.propTypes = {
+    checkedCount: PropTypes.number,
+    checkedItems: PropTypes.object,
     editingTarget: PropTypes.string,
     extensionLibraryVisible: PropTypes.bool,
     fileInputRef: PropTypes.func,
@@ -141,6 +151,8 @@ TargetPane.propTypes = {
     onChangeSpriteVisibility: PropTypes.func,
     onChangeSpriteX: PropTypes.func,
     onChangeSpriteY: PropTypes.func,
+    onCheckToggle: PropTypes.func,
+    onDeleteChecked: PropTypes.func,
     onDeleteSprite: PropTypes.func,
     onDrop: PropTypes.func,
     onDuplicateSprite: PropTypes.func,

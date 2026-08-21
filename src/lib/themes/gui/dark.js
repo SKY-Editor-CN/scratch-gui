@@ -17,7 +17,7 @@ const guiColors = {
 
     'text-primary': '#eeeeee',
 
-    'menu-bar-background': '#333333',
+    'menu-bar-background': 'var(--looks-secondary-dark)',
 
     'assets-background': '#111111',
 
@@ -27,6 +27,10 @@ const guiColors = {
 
     'badge-background': '#16202c',
     'badge-border': '#203652',
+
+    'theme-card-background': '#ffffff26',
+    'theme-card-border': 'transparent',
+    'theme-card-selected-border': '#4C97FF',
 
     'fullscreen-background': '#111111',
     'fullscreen-accent': '#111111',

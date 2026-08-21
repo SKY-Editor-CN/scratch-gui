@@ -47,7 +47,6 @@ import '../../lib/normalize.css';
 // messagesByLocale only has the non-English strings, so we have to add English as a supported
 // locale so that a non-English device with their editor language set to English gets English.
 const locale = detectLocale(['en', ...Object.keys(messagesByLocale)]);
-document.documentElement.lang = locale;
 
 const addonTranslations = messagesByLocale[locale] ? messagesByLocale[locale]() : {};
 
@@ -59,9 +58,13 @@ if (locale !== 'en') {
     }
 }
 
-document.title = `${settingsTranslations.title} - ${APP_NAME}`;
 const theme = detectTheme();
-applyGuiColors(theme);
+
+export const initializeAddonSettingsPage = () => {
+    document.documentElement.lang = locale;
+    document.title = `${settingsTranslations.title} - ${APP_NAME}`;
+    applyGuiColors(theme);
+};
 
 let _throttleTimeout;
 const postThrottledSettingsChange = store => {
@@ -982,8 +985,11 @@ class AddonSettingsComponent extends React.Component {
         }
     }
     handleReloadNow () {
-        // Value posted does not matter
-        Channels.reloadChannel.postMessage(0);
+        if (this.props.onReload) {
+            this.props.onReload();
+        } else if (Channels.reloadChannel) {
+            Channels.reloadChannel.postMessage(0);
+        }
         this.setState({
             dirty: false
         });
@@ -1173,7 +1179,8 @@ class AddonSettingsComponent extends React.Component {
     }
 }
 AddonSettingsComponent.propTypes = {
-    onExportSettings: PropTypes.func
+    onExportSettings: PropTypes.func,
+    onReload: PropTypes.func
 };
 
 export default AddonSettingsComponent;

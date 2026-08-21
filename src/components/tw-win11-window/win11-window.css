@@ -1,0 +1,228 @@
+@import "../../css/colors.css";
+@import "../../css/default-colors.css";
+
+.win11-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 510;
+    background: transparent;
+    pointer-events: none;
+}
+
+.win11-window {
+    position: fixed;
+    max-width: 100vw;
+    max-height: 100vh;
+    background: $ui-modal-background;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35), 0 2px 8px rgba(0, 0, 0, 0.2);
+    transition: left 0.2s ease, top 0.2s ease, width 0.2s ease, height 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    pointer-events: auto;
+}
+
+.win11-window.win11-maximized {
+    border-radius: 0;
+}
+
+.win11-dim-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 200;
+    transition: opacity 0.2s ease;
+}
+
+.win11-window.win11-dimmed .win11-dim-overlay {
+    opacity: 1;
+}
+
+.win11-window.win11-interacting .win11-dim-overlay {
+    transition: none;
+}
+
+.win11-titlebar {
+    height: 40px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-left: 16px;
+    background: $ui-modal-header-background;
+    color: $ui-modal-header-foreground;
+    user-select: none;
+    cursor: default;
+}
+
+.win11-title {
+    display: flex;
+    align-items: center;
+    font-size: 13px;
+}
+
+.win11-title-icon {
+    width: 16px;
+    height: 16px;
+    margin-right: 8px;
+    display: block;
+    flex-shrink: 0;
+}
+
+.win11-controls {
+    display: flex;
+    height: 100%;
+}
+
+.win11-button {
+    width: 46px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: transparent;
+    color: $ui-modal-header-foreground;
+    cursor: default;
+    padding: 0;
+}
+.win11-button:hover {
+    background: rgba(0, 0, 0, 0.08);
+}
+.win11-button:active {
+    background: rgba(0, 0, 0, 0.14);
+}
+
+.win11-close:hover {
+    background: #e81123;
+    color: #fff;
+}
+.win11-close:active {
+    background: #f1707a;
+    color: #fff;
+}
+
+.win11-body {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    position: relative;
+}
+
+.win11-resize-handle-n,
+.win11-resize-handle-s,
+.win11-resize-handle-w,
+.win11-resize-handle-e,
+.win11-resize-handle-nw,
+.win11-resize-handle-ne,
+.win11-resize-handle-sw,
+.win11-resize-handle-se {
+    position: absolute;
+    z-index: 2;
+}
+.win11-resize-handle-n {
+    top: 0;
+    left: 18px;
+    right: 18px;
+    height: 8px;
+    cursor: ns-resize;
+}
+.win11-resize-handle-s {
+    bottom: 0;
+    left: 18px;
+    right: 18px;
+    height: 8px;
+    cursor: ns-resize;
+}
+.win11-resize-handle-w {
+    left: 0;
+    top: 18px;
+    bottom: 18px;
+    width: 8px;
+    cursor: ew-resize;
+}
+.win11-resize-handle-e {
+    right: 0;
+    top: 18px;
+    bottom: 18px;
+    width: 8px;
+    cursor: ew-resize;
+}
+.win11-resize-handle-nw,
+.win11-resize-handle-ne,
+.win11-resize-handle-sw,
+.win11-resize-handle-se {
+    width: 18px;
+    height: 18px;
+}
+.win11-resize-handle-nw {
+    left: 0;
+    top: 0;
+    cursor: nwse-resize;
+}
+.win11-resize-handle-ne {
+    right: 0;
+    top: 0;
+    cursor: nesw-resize;
+}
+.win11-resize-handle-sw {
+    left: 0;
+    bottom: 0;
+    cursor: nesw-resize;
+}
+.win11-resize-handle-se {
+    right: 0;
+    bottom: 0;
+    cursor: nwse-resize;
+}
+
+.win11-context-menu {
+    position: fixed;
+    min-width: 130px;
+    padding: 5px 0;
+    margin: 2px 0 0;
+    font-size: 0.85rem;
+    text-align: left;
+    background-color: $ui-white;
+    border: 1px solid $ui-black-transparent;
+    border-radius: 4px;
+    box-shadow: 0 0 5px 1px $shadow;
+    pointer-events: auto;
+    z-index: 530;
+}
+
+.win11-menu-item {
+    padding: 8px 12px;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: 0.1s ease;
+}
+
+.win11-menu-item:hover {
+    background: $looks-secondary;
+    color: white;
+}
+
+.win11-menu-item-divider {
+    margin: 4px 0;
+    border-top: 1px solid $ui-black-transparent;
+}
+
+.win11-menu-item-disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.win11-menu-item-disabled:hover {
+    background: transparent;
+    color: inherit;
+}

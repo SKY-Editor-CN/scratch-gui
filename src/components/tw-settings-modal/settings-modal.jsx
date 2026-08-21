@@ -14,6 +14,7 @@ import helpIcon from './help-icon.svg';
 import {APP_NAME} from '../../lib/brand.js';
 
 /* eslint-disable react/no-multi-comp */
+/* eslint-disable react/prop-types */
 
 const BufferedInput = BufferedInputHOC(Input);
 
@@ -432,81 +433,88 @@ Header.propTypes = {
     children: PropTypes.node
 };
 
-const SettingsModalComponent = props => (
-    <Modal
-        className={styles.modalContent}
-        onRequestClose={props.onClose}
-        contentLabel={props.intl.formatMessage(messages.title)}
-        id="settingsModal"
-    >
-        <Box className={styles.body}>
-            <Header>
-                <FormattedMessage
-                    defaultMessage="Featured"
-                    description="Settings modal section"
-                    id="tw.settingsModal.featured"
-                />
-            </Header>
-            <CustomFPS
-                framerate={props.framerate}
-                onChange={props.onFramerateChange}
-                onCustomizeFramerate={props.onCustomizeFramerate}
+export const SettingsModalBody = props => (
+    <Box className={styles.body}>
+        <Header>
+            <FormattedMessage
+                defaultMessage="Featured"
+                description="Settings modal section"
+                id="tw.settingsModal.featured"
             />
-            <Interpolation
-                value={props.interpolation}
-                onChange={props.onInterpolationChange}
+        </Header>
+        <CustomFPS
+            framerate={props.framerate}
+            onChange={props.onFramerateChange}
+            onCustomizeFramerate={props.onCustomizeFramerate}
+        />
+        <Interpolation
+            value={props.interpolation}
+            onChange={props.onInterpolationChange}
+        />
+        <HighQualityPen
+            value={props.highQualityPen}
+            onChange={props.onHighQualityPenChange}
+        />
+        <WarpTimer
+            value={props.warpTimer}
+            onChange={props.onWarpTimerChange}
+        />
+        <Header>
+            <FormattedMessage
+                defaultMessage="Remove Limits"
+                description="Settings modal section"
+                id="tw.settingsModal.removeLimits"
             />
-            <HighQualityPen
-                value={props.highQualityPen}
-                onChange={props.onHighQualityPenChange}
+        </Header>
+        <InfiniteClones
+            value={props.infiniteClones}
+            onChange={props.onInfiniteClonesChange}
+        />
+        <RemoveFencing
+            value={props.removeFencing}
+            onChange={props.onRemoveFencingChange}
+        />
+        <RemoveMiscLimits
+            value={props.removeLimits}
+            onChange={props.onRemoveLimitsChange}
+        />
+        <Header>
+            <FormattedMessage
+                defaultMessage="Danger Zone"
+                description="Settings modal section"
+                id="tw.settingsModal.dangerZone"
             />
-            <WarpTimer
-                value={props.warpTimer}
-                onChange={props.onWarpTimerChange}
+        </Header>
+        {!props.isEmbedded && (
+            <CustomStageSize
+                {...props}
             />
-            <Header>
-                <FormattedMessage
-                    defaultMessage="Remove Limits"
-                    description="Settings modal section"
-                    id="tw.settingsModal.removeLimits"
-                />
-            </Header>
-            <InfiniteClones
-                value={props.infiniteClones}
-                onChange={props.onInfiniteClonesChange}
+        )}
+        <DisableCompiler
+            value={props.disableCompiler}
+            onChange={props.onDisableCompilerChange}
+        />
+        {!props.isEmbedded && (
+            <StoreProjectOptions
+                {...props}
             />
-            <RemoveFencing
-                value={props.removeFencing}
-                onChange={props.onRemoveFencingChange}
-            />
-            <RemoveMiscLimits
-                value={props.removeLimits}
-                onChange={props.onRemoveLimitsChange}
-            />
-            <Header>
-                <FormattedMessage
-                    defaultMessage="Danger Zone"
-                    description="Settings modal section"
-                    id="tw.settingsModal.dangerZone"
-                />
-            </Header>
-            {!props.isEmbedded && (
-                <CustomStageSize
-                    {...props}
-                />
-            )}
-            <DisableCompiler
-                value={props.disableCompiler}
-                onChange={props.onDisableCompilerChange}
-            />
-            {!props.isEmbedded && (
-                <StoreProjectOptions
-                    {...props}
-                />
-            )}
-        </Box>
-    </Modal>
+        )}
+    </Box>
 );
+
+const SettingsModalComponent = props => {
+    const title = props.intl.formatMessage(messages.title);
+    return (
+        <Modal
+            className={styles.modalContent}
+            onRequestClose={props.onClose}
+            contentLabel={title}
+            id="settingsModal"
+        >
+            <SettingsModalBody {...props} />
+        </Modal>
+    );
+};
 
 SettingsModalComponent.propTypes = {
     intl: intlShape,

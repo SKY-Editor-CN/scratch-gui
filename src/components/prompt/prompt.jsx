@@ -5,6 +5,7 @@ import React from 'react';
 
 import Box from '../box/box.jsx';
 import Modal from '../../containers/modal.jsx';
+import Win11Window from '../tw-win11-window/win11-window.jsx';
 
 import styles from './prompt.css';
 import {SCRATCH_MAX_CLOUD_VARIABLES} from '../../lib/tw-cloud-limits.js';
@@ -52,13 +53,21 @@ const Packager = () => (
     </a>
 );
 
-const PromptComponent = props => (
-    <Modal
-        className={styles.modalContent}
-        contentLabel={props.title}
-        onRequestClose={props.onCancel}
-        id="promptModal"
-    >
+const PromptComponent = props => {
+    const Shell = props.uiTheme === 'sky-editor' ? Win11Window : Modal;
+    const shellProps = props.uiTheme === 'sky-editor' ? {
+        title: props.title,
+        onClose: props.onCancel,
+        defaultWidth: 500,
+        defaultHeight: 420
+    } : {
+        className: styles.modalContent,
+        contentLabel: props.title,
+        onRequestClose: props.onCancel,
+        id: 'promptModal'
+    };
+    return (
+        <Shell {...shellProps}>
         <Box className={styles.body}>
             <Box className={styles.label}>
                 {props.label}
@@ -200,8 +209,9 @@ const PromptComponent = props => (
                 </button>
             </Box>
         </Box>
-    </Modal>
-);
+        </Shell>
+    );
+};
 
 PromptComponent.propTypes = {
     isAddingCloudVariableScratchSafe: PropTypes.bool.isRequired,
@@ -221,7 +231,8 @@ PromptComponent.propTypes = {
     onScopeOptionSelection: PropTypes.func.isRequired,
     showCloudOption: PropTypes.bool.isRequired,
     showVariableOptions: PropTypes.bool.isRequired,
-    title: PropTypes.string.isRequired
+    title: PropTypes.string.isRequired,
+    uiTheme: PropTypes.string
 };
 
 export default PromptComponent;

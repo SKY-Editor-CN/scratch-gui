@@ -233,3 +233,22 @@
     color: inherit;
     text-decoration: none;
 }
+
+/* SKYEditor 主题：顶栏整体水平居中，仅调整对齐/位置，不改样式 */
+.sky-editor-centered {
+    justify-content: center;
+}
+
+.sky-editor-centered .main-menu {
+    flex-grow: 0;
+}
+
+.sky-editor-centered .menu-bar-item.growable {
+    flex: 0 1 auto;
+}
+
+.sky-editor-centered .title-field-growable {
+    flex-grow: 0;
+    width: auto;
+    max-width: $menu-bar-item-max-width;
+}

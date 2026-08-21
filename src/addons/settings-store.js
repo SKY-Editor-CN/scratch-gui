@@ -122,6 +122,61 @@ class SettingsStore extends EventTargetShim {
         for (const addonId of Object.keys(addons)) {
             result[addonId] = {};
         }
+        // SKYEditor 默认插件配置
+        result['bitmap-copy'] = { enabled: true };
+        result['block-cherry-picking'] = { enabled: true, invertDrag: false };
+        result['block-duplicate'] = { enabled: true };
+        result['block-switching'] = { enabled: true, motion: true, looks: true, sound: true, event: true, control: true, operator: true, sensing: true, data: true, extension: true, sa: true, customargs: true, customargsmode: 'defOnly', noop: true };
+        result['cat-blocks'] = { enabled: true, watch: false };
+        result['clones'] = { enabled: true, projectpage: false, showicononly: false };
+        result['color-picker'] = { enabled: true };
+        result['copy-reporter'] = { enabled: true };
+        result['debugger'] = { enabled: true, log_clear_greenflag: false, log_greenflag: false, log_clone_create: false, log_failed_clone_creation: true, log_broadcasts: false, log_max_list_length: true, log_invalid_cloud_data: false, fancy_graphs: false };
+        result['drag-drop'] = { enabled: true, 'use-hd-upload': false };
+        result['editor-colored-context-menus'] = { enabled: true };
+        result['editor-comment-previews'] = { enabled: true, 'hover-view': true, 'hover-view-block': true, 'hover-view-procedure': true, delay: 'short', 'follow-mouse': true, 'reduce-transparency': false, 'reduce-animation': false };
+        result['editor-devtools'] = { enabled: true, enableCleanUpPlus: true, enablePasteBlocksAtMouse: true };
+        result['editor-searchable-dropdowns'] = { enabled: true };
+        result['find-bar'] = { enabled: true };
+        result['folders'] = { enabled: true };
+        result['hide-new-variables'] = { enabled: true };
+        result['jump-to-def'] = { enabled: true };
+        result['middle-click-popup'] = { enabled: true, popup_scale: 48, popup_width: 16, popup_max_height: 40 };
+        result['mouse-pos'] = { enabled: true };
+        result['move-to-top-bottom'] = { enabled: true };
+        result['mute-project'] = { enabled: true };
+        result['onion-skinning'] = { enabled: true, default: false, previous: 1, next: 0, opacity: 25, opacityStep: 10, layering: 'front', mode: 'merge', beforeTint: '#FF0000', afterTint: '#0000FF' };
+        result['paint-skew'] = { enabled: true };
+        result['paint-snap'] = { enabled: true, 'enable-default': true, 'guide-color': '#ff0000', pageCenter: true, pageAxes: true, pageEdges: true, pageCorners: false, objectEdges: true, objectCenters: true, objectMidlines: true, objectCorners: false, boxCenter: true, boxCorners: false, boxEdgeMids: false, threshold: 10 };
+        result['pause'] = { enabled: true };
+        result['pick-colors-from-stage'] = { enabled: true };
+        result['remove-curved-stage-border'] = { enabled: true };
+        result['remove-sprite-confirm'] = { enabled: true };
+        result['rename-broadcasts'] = { enabled: true };
+        result['reorder-custom-inputs'] = { enabled: true, InsertInputsAfter: false };
+        result['vol-slider'] = { enabled: true, defVol: 100, always: false };
+        result['expanded-backpack'] = { enabled: true, rows: 4, upscale: true };
+        result['data-category-tweaks-v2'] = { enabled: true, separateListCategory: true, separateLocalVariables: true, moveReportersDown: false };
+        result['block-palette-icons'] = { enabled: true };
+        result['hide-flyout'] = { enabled: true, toggle: 'category', speed: 'default', lockLoad: true };
+        result['block-count'] = { enabled: true };
+        result['default-costume-editor-color'] = { enabled: true, fill: '#1c86ff', stroke: '#ffffff', strokeSize: 2, persistence: true };
+        result['better-img-uploads'] = { enabled: true, fitting: 'full' };
+        result['custom-block-shape'] = { enabled: true };
+        result['variable-manager'] = { enabled: true };
+        result['search-sprites'] = { enabled: true };
+        result['sprite-properties'] = { enabled: true };
+        result['load-extensions'] = { enabled: true };
+        result['initialise-sprite-position'] = { enabled: true, x: 0, y: 0, library: false, duplicate: 'keep' };
+        result['blocks2image'] = { enabled: true };
+        result['paint-by-default'] = { enabled: true };
+        result['editor-extra-keys'] = { enabled: true, experimentalKeys: true, shiftKeys: true, twKeys: true };
+        result['move-to-top-layer'] = { enabled: true };
+        result['disable-paste-offset'] = { enabled: true };
+        result['swap-local-global'] = { enabled: true };
+        result['editor-number-arrow-keys'] = { enabled: true };
+        result['fullscreen'] = { enabled: true, browserFullscreen: true, toolbar: 'hover' };
+        result['hide-stage'] = { enabled: true };
         return result;
     }
 
@@ -137,7 +192,7 @@ class SettingsStore extends EventTargetShim {
                         if (Object.prototype.hasOwnProperty.call(base, key)) {
                             const value = result[key];
                             if (value && typeof value === 'object') {
-                                base[key] = value;
+                                Object.assign(base[key], value);
                             }
                         }
                     }

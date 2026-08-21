@@ -158,6 +158,8 @@ const GUIComponent = props => {
         fontsModalVisible,
         unknownPlatformModalVisible,
         invalidProjectModalVisible,
+        uiTheme,
+        tabLayout,
         vm,
         ...componentProps
     } = omit(props, 'dispatch');
@@ -166,9 +168,16 @@ const GUIComponent = props => {
     }
 
     const tabClassNames = {
-        tabs: styles.tabs,
+        tabs: classNames(
+            styles.tabs,
+            uiTheme === 'sky-editor' && tabLayout === 'vertical' ? styles.tabsSkySidebar : null
+        ),
         tab: classNames(tabStyles.reactTabsTab, styles.tab),
-        tabList: classNames(tabStyles.reactTabsTabList, styles.tabList),
+        tabList: classNames(
+            tabStyles.reactTabsTabList,
+            styles.tabList,
+            uiTheme === 'sky-editor' && tabLayout === 'vertical' ? styles.tabListSkySidebar : null
+        ),
         tabPanel: classNames(tabStyles.reactTabsTabPanel, styles.tabPanel),
         tabPanelSelected: classNames(tabStyles.reactTabsTabPanelSelected, styles.isSelected),
         tabSelected: classNames(tabStyles.reactTabsTabSelected, styles.isSelected)
@@ -533,6 +542,8 @@ GUIComponent.propTypes = {
     targetIsStage: PropTypes.bool,
     telemetryModalVisible: PropTypes.bool,
     theme: PropTypes.instanceOf(Theme),
+    uiTheme: PropTypes.string,
+    tabLayout: PropTypes.string,
     tipsLibraryVisible: PropTypes.bool,
     usernameModalVisible: PropTypes.bool,
     settingsModalVisible: PropTypes.bool,
@@ -572,7 +583,9 @@ const mapStateToProps = state => ({
     // This is the button's mode, as opposed to the actual current state
     blocksId: state.scratchGui.timeTravel.year.toString(),
     stageSizeMode: state.scratchGui.stageSize.stageSize,
-    theme: state.scratchGui.theme.theme
+    theme: state.scratchGui.theme.theme,
+    uiTheme: state.scratchGui.uiTheme,
+    tabLayout: state.scratchGui.tabLayout
 });
 
 export default injectIntl(connect(

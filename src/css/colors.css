@@ -71,6 +71,10 @@ $shadow: var(--shadow);
 $badge-background: var(--badge-background);
 $badge-border: var(--badge-border);
 
+$theme-card-background: var(--theme-card-background);
+$theme-card-border: var(--theme-card-border);
+$theme-card-selected-border: var(--theme-card-selected-border);
+
 $page-background: var(--page-background);
 $page-foreground: var(--page-foreground);
 

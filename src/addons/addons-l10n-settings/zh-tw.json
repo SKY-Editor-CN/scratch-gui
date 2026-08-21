@@ -288,5 +288,17 @@
     "hide-stage/@name": "添加隱藏舞台與角色面板按鈕",
     "editor-stepping/@description": "專案運行時，以顏色高亮正在執行的程式積木。",
     "editor-stepping/@name": "高亮執行中的程式",
-    "editor-stepping/@settings-name-highlight-color": "高亮顏色"
+    "editor-stepping/@settings-name-highlight-color": "高亮顏色",
+    "tw-disable-cloud-variables/@name": "停用雲端變數",
+    "tw-disable-cloud-variables/@description": "預設停用雲端變數。你仍然可以透過「編輯 > 啟用雲端變數」選單重新啟用它們。",
+    "tw-disable-compiler/@name": "停用編輯器中的編譯器",
+    "tw-disable-compiler/@description": "預設關閉程式編輯器中的編譯器。你仍然可以透過工具列的「進階」按鈕手動啟用它。",
+    "tw-disable-vibration/@name": "停用震動",
+    "tw-disable-vibration/@description": "阻止震動和遊戲手柄擴充功能引起震動。",
+    "tw-remove-backpack/@name": "隱藏背包",
+    "tw-remove-backpack/@description": "從編輯器中移除背包功能。",
+    "tw-remove-feedback/@name": "移除意見回饋按鈕",
+    "tw-remove-feedback/@description": "從工具列移除意見回饋按鈕。",
+    "tw-straighten-comments/@name": "保持積木註解連接為直線",
+    "tw-straighten-comments/@description": "強制積木註解始終透過水平直線連接到其來源積木，而不是斜線。"
 }

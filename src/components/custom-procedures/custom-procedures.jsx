@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import Modal from '../../containers/modal.jsx';
+import Win11Window from '../tw-win11-window/win11-window.jsx';
 import Box from '../box/box.jsx';
 import {defineMessages, injectIntl, intlShape, FormattedMessage} from 'react-intl';
 
@@ -18,13 +19,21 @@ const messages = defineMessages({
     }
 });
 
-const CustomProcedures = props => (
-    <Modal
-        className={styles.modalContent}
-        contentLabel={props.intl.formatMessage(messages.myblockModalTitle)}
-        onRequestClose={props.onCancel}
-        id="customProceduresModal"
-    >
+const CustomProcedures = props => {
+    const Shell = props.uiTheme === 'sky-editor' ? Win11Window : Modal;
+    const shellProps = props.uiTheme === 'sky-editor' ? {
+        title: props.intl.formatMessage(messages.myblockModalTitle),
+        onClose: props.onCancel,
+        defaultWidth: 600,
+        defaultHeight: 560
+    } : {
+        className: styles.modalContent,
+        contentLabel: props.intl.formatMessage(messages.myblockModalTitle),
+        onRequestClose: props.onCancel,
+        id: 'customProceduresModal'
+    };
+    return (
+        <Shell {...shellProps}>
         <Box
             className={styles.workspace}
             componentRef={props.componentRef}
@@ -140,8 +149,9 @@ const CustomProcedures = props => (
                 </button>
             </Box>
         </Box>
-    </Modal>
-);
+        </Shell>
+    );
+};
 
 CustomProcedures.propTypes = {
     componentRef: PropTypes.func.isRequired,
@@ -152,7 +162,8 @@ CustomProcedures.propTypes = {
     onCancel: PropTypes.func.isRequired,
     onOk: PropTypes.func.isRequired,
     onToggleWarp: PropTypes.func.isRequired,
-    warp: PropTypes.bool.isRequired
+    warp: PropTypes.bool.isRequired,
+    uiTheme: PropTypes.string
 };
 
 export default injectIntl(CustomProcedures);

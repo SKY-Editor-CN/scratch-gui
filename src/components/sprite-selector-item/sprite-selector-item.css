@@ -121,3 +121,34 @@
 [dir="rtl"] .number {
     right: 0.15rem;
 }
+
+.check-button {
+    position: absolute;
+    top: 0.15rem;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.25rem;
+    height: 1.25rem;
+    cursor: pointer;
+    border-radius: 0.25rem;
+    background: $ui-white;
+    border: 1px solid $ui-black-transparent;
+}
+
+[dir="ltr"] .check-button {
+    right: 0.15rem;
+}
+
+[dir="rtl"] .check-button {
+    left: 0.15rem;
+}
+
+.check-button input {
+    width: 0.875rem;
+    height: 0.875rem;
+    margin: 0;
+    cursor: pointer;
+    accent-color: $looks-secondary;
+}

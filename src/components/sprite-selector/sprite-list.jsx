@@ -17,14 +17,18 @@ const ThrottledSpriteSelectorItem = ThrottledPropertyHOC('asset', 500)(SpriteSel
 const SpriteList = function (props) {
     const {
         containerRef,
+        checkedItems,
+        checkedCount,
         editingTarget,
         draggingIndex,
         draggingType,
         hoveredTarget,
         onDeleteSprite,
+        onDeleteChecked,
         onDuplicateSprite,
         onExportSprite,
         onSelectSprite,
+        onCheckToggle,
         onAddSortable,
         onRemoveSortable,
         ordering,
@@ -79,6 +83,8 @@ const SpriteList = function (props) {
                         >
                             <ThrottledSpriteSelectorItem
                                 asset={sprite.costume && sprite.costume.asset}
+                                checked={onCheckToggle && checkedItems ? checkedItems.has(sprite.id) : false}
+                                checkedCount={onDeleteChecked ? checkedCount : 0}
                                 className={classNames(styles.sprite, {
                                     [styles.raised]: isRaised,
                                     [styles.receivedBlocks]: receivedBlocks
@@ -91,7 +97,9 @@ const SpriteList = function (props) {
                                 name={sprite.name}
                                 selected={sprite.id === selectedId}
                                 onClick={onSelectSprite}
+                                onCheckToggle={onCheckToggle ? () => onCheckToggle(sprite.id) : null}
                                 onDeleteButtonClick={onDeleteSprite}
+                                onDeleteChecked={onDeleteChecked}
                                 onDuplicateButtonClick={onDuplicateSprite}
                                 onExportButtonClick={onExportSprite}
                             />
@@ -105,6 +113,8 @@ const SpriteList = function (props) {
 
 SpriteList.propTypes = {
     containerRef: PropTypes.func,
+    checkedItems: PropTypes.object,
+    checkedCount: PropTypes.number,
     draggingIndex: PropTypes.number,
     draggingType: PropTypes.oneOf(Object.keys(DragConstants)),
     editingTarget: PropTypes.string,
@@ -125,6 +135,8 @@ SpriteList.propTypes = {
         order: PropTypes.number.isRequired
     })),
     onAddSortable: PropTypes.func,
+    onCheckToggle: PropTypes.func,
+    onDeleteChecked: PropTypes.func,
     onDeleteSprite: PropTypes.func,
     onDuplicateSprite: PropTypes.func,
     onExportSprite: PropTypes.func,

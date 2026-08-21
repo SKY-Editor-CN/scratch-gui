@@ -27,6 +27,8 @@ import DeletionRestorer from '../../containers/deletion-restorer.jsx';
 import TurboMode from '../../containers/turbo-mode.jsx';
 import MenuBarHOC from '../../containers/menu-bar-hoc.jsx';
 import SettingsMenu from './settings-menu.jsx';
+import SettingsWindow from './settings-window.jsx';
+import AddonsWindow from './addons-window.jsx';
 
 import FramerateChanger from '../../containers/tw-framerate-changer.jsx';
 import ChangeUsername from '../../containers/tw-change-username.jsx';
@@ -211,6 +213,11 @@ MenuItemLink.propTypes = {
 class MenuBar extends React.Component {
     constructor (props) {
         super(props);
+        this.state = {
+            settingsWindowOpen: false,
+            settingsWindowTab: 'settings',
+            addonsWindowOpen: false
+        };
         bindAll(this, [
             'handleClickSeeInside',
             'handleClickNew',
@@ -226,6 +233,12 @@ class MenuBar extends React.Component {
             'handleSetMode',
             'handleKeyPress',
             'handleRestoreOption',
+            'handleOpenSettingsWindow',
+            'handleCloseSettingsWindow',
+            'handleClickAdvanced',
+            'handleOpenAddonsWindow',
+            'handleCloseAddonsWindow',
+            'handleClickAddons',
             'getSaveToComputerHandler',
             'restoreOptionMessage'
         ]);
@@ -274,6 +287,37 @@ class MenuBar extends React.Component {
     handleClickDesktopSettings () {
         this.props.onClickDesktopSettings();
         this.props.onRequestCloseSettings();
+    }
+    handleOpenSettingsWindow (tab) {
+        this.setState({
+            settingsWindowOpen: true,
+            settingsWindowTab: tab
+        });
+    }
+    handleCloseSettingsWindow () {
+        this.setState({settingsWindowOpen: false});
+    }
+    handleOpenAddonsWindow () {
+        this.setState({addonsWindowOpen: true});
+    }
+    handleCloseAddonsWindow () {
+        this.setState({addonsWindowOpen: false});
+    }
+    handleClickAddons () {
+        if (this.props.uiTheme === 'sky-editor') {
+            this.props.onRequestCloseEdit();
+            this.handleOpenAddonsWindow();
+        } else {
+            this.props.onClickAddonSettings();
+        }
+    }
+    handleClickAdvanced () {
+        if (this.props.uiTheme === 'sky-editor') {
+            this.props.onRequestCloseEdit();
+            this.handleOpenSettingsWindow('advanced');
+        } else {
+            this.props.onClickSettingsModal();
+        }
     }
     handleClickRestorePoints () {
         this.props.onClickRestorePoints();
@@ -487,7 +531,11 @@ class MenuBar extends React.Component {
             <Box
                 className={classNames(
                     this.props.className,
-                    styles.menuBar
+                    styles.menuBar,
+                    {
+                        [styles.skyEditorCentered]: this.props.uiTheme === 'sky-editor' &&
+                            this.props.menuBarPosition === 'center'
+                    }
                 )}
             >
                 <div className={styles.mainMenu}>
@@ -557,9 +605,11 @@ class MenuBar extends React.Component {
                                 this.props.onClickAddonSettings &&
                                 this.props.onClickAddonSettings.bind(null, 'editor-theme3')
                             }
+                            onOpenSettingsWindow={this.handleOpenSettingsWindow}
                             onRequestClose={this.props.onRequestCloseSettings}
                             onRequestOpen={this.props.onClickSettings}
                             settingsMenuOpen={this.props.settingsMenuOpen}
+                            uiTheme={this.props.uiTheme}
                         />)}
                         {(this.props.canManageFiles) && (
                             <MenuLabel
@@ -831,7 +881,7 @@ class MenuBar extends React.Component {
                                     )}</CloudVariablesToggler>
                                 </MenuSection>
                                 <MenuSection>
-                                    <MenuItem onClick={this.props.onClickSettingsModal}>
+                                    <MenuItem onClick={this.handleClickAdvanced}>
                                         <FormattedMessage
                                             defaultMessage="Advanced Settings"
                                             description="Menu bar item for advanced settings"
@@ -888,7 +938,7 @@ class MenuBar extends React.Component {
                         {this.props.onClickAddonSettings && (
                             <div
                                 className={classNames(styles.menuBarItem, styles.hoverable)}
-                                onClick={this.props.onClickAddonSettings}
+                                onClick={this.handleClickAddons}
                             >
                                 <img
                                     src={addonsIcon}
@@ -908,7 +958,7 @@ class MenuBar extends React.Component {
                         {this.props.onClickSettingsModal && (
                             <div
                                 className={classNames(styles.menuBarItem, styles.hoverable)}
-                                onClick={this.props.onClickSettingsModal}
+                                onClick={this.handleClickAdvanced}
                             >
                                 <img
                                     src={advancedIcon}
@@ -1048,6 +1098,28 @@ class MenuBar extends React.Component {
             <React.Fragment>
                 {menuBar}
                 <TWNews />
+                {(this.props.uiTheme === 'sky-editor' && this.state.settingsWindowOpen) && (
+                    <SettingsWindow
+                        onClose={this.handleCloseSettingsWindow}
+                        defaultTab={this.state.settingsWindowTab}
+                        canChangeLanguage={this.props.canChangeLanguage}
+                        canChangeTheme={this.props.canChangeTheme}
+                        onClickDesktopSettings={
+                            this.props.onClickDesktopSettings &&
+                            this.handleClickDesktopSettings
+                        }
+                        // eslint-disable-next-line react/jsx-no-bind
+                        onOpenCustomSettings={
+                            this.props.onClickAddonSettings &&
+                            this.props.onClickAddonSettings.bind(null, 'editor-theme3')
+                        }
+                    />
+                )}
+                {(this.props.uiTheme === 'sky-editor' && this.state.addonsWindowOpen) && (
+                    <AddonsWindow
+                        onClose={this.handleCloseAddonsWindow}
+                    />
+                )}
             </React.Fragment>
         );
     }
@@ -1152,6 +1224,8 @@ MenuBar.propTypes = {
     showSaveFilePicker: PropTypes.func,
     showComingSoon: PropTypes.bool,
     username: PropTypes.string,
+    uiTheme: PropTypes.string,
+    menuBarPosition: PropTypes.string,
     userOwnsProject: PropTypes.bool,
     vm: PropTypes.instanceOf(VM).isRequired
 };
@@ -1185,6 +1259,8 @@ const mapStateToProps = (state, ownProps) => {
         sessionExists: state.session && typeof state.session.session !== 'undefined',
         settingsMenuOpen: settingsMenuOpen(state),
         username: user ? user.username : null,
+        uiTheme: state.scratchGui.uiTheme,
+        menuBarPosition: state.scratchGui.menuBarPosition,
         userOwnsProject: ownProps.authorUsername && user &&
             (ownProps.authorUsername === user.username),
         vm: state.scratchGui.vm,

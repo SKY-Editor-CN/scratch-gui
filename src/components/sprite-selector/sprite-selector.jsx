@@ -42,6 +42,8 @@ const messages = defineMessages({
 
 const SpriteSelectorComponent = function (props) {
     const {
+        checkedCount,
+        checkedItems,
         editingTarget,
         hoveredTarget,
         intl,
@@ -52,6 +54,8 @@ const SpriteSelectorComponent = function (props) {
         onChangeSpriteVisibility,
         onChangeSpriteX,
         onChangeSpriteY,
+        onCheckToggle,
+        onDeleteChecked,
         onDrop,
         onDeleteSprite,
         onDuplicateSprite,
@@ -101,11 +105,15 @@ const SpriteSelectorComponent = function (props) {
             />
 
             <SpriteList
+                checkedCount={checkedCount}
+                checkedItems={checkedItems}
                 editingTarget={editingTarget}
                 hoveredTarget={hoveredTarget}
                 items={Object.keys(sprites).map(id => sprites[id])}
                 raised={raised}
                 selectedId={selectedId}
+                onCheckToggle={onCheckToggle}
+                onDeleteChecked={onDeleteChecked}
                 onDeleteSprite={onDeleteSprite}
                 onDrop={onDrop}
                 onDuplicateSprite={onDuplicateSprite}
@@ -147,6 +155,8 @@ const SpriteSelectorComponent = function (props) {
 };
 
 SpriteSelectorComponent.propTypes = {
+    checkedCount: PropTypes.number,
+    checkedItems: PropTypes.object,
     editingTarget: PropTypes.string,
     hoveredTarget: PropTypes.shape({
         hoveredSprite: PropTypes.string,
@@ -160,6 +170,8 @@ SpriteSelectorComponent.propTypes = {
     onChangeSpriteVisibility: PropTypes.func,
     onChangeSpriteX: PropTypes.func,
     onChangeSpriteY: PropTypes.func,
+    onCheckToggle: PropTypes.func,
+    onDeleteChecked: PropTypes.func,
     onDeleteSprite: PropTypes.func,
     onDrop: PropTypes.func,
     onDuplicateSprite: PropTypes.func,

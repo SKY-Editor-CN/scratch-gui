@@ -39,8 +39,8 @@
 }
 
 .sa-debugger-interface [class*="card_header-buttons_"] {
-  background-color: #29beb8;
-  border-color: #3aa8a4;
+  background-color: var(--looks-secondary);
+  border-color: var(--looks-secondary-dark);
 }
 
 .sa-debugger-interface h1 {
@@ -179,7 +179,7 @@
 }
 
 .sa-debugger-log-repeats {
-  background-color: hsla(163, 85%, 40%, 1);
+  background-color: var(--looks-secondary);
   color: white;
   border-radius: 100px;
   padding: 1px 6px;
@@ -276,4 +276,159 @@
 }
 .sa-debugger-compiler-warning[hidden] {
   display: none;
+}
+
+/* ===== SKYEditor 统一窗口样式（uiTheme === 'sky-editor' 时启用） ===== */
+/* 复刻 Win11Window 完整窗口观感：独立悬浮窗口 + 40px 主题色标题栏 + 窗口控件风格按钮 */
+
+/* 1. 窗口容器：高光描边 + 深层投影，深色编辑器背景下也能呈现独立悬浮窗口 */
+.sa-debugger-interface.sa-debugger-sky-window {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.55), 0 2px 8px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+}
+
+/* 2. 标题栏：恒定 40px 高，主题色 + 轻渐变质感 + 底部深色分隔线 */
+.sa-debugger-sky-window [class*="card_header-buttons_"] {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0;
+  padding: 0;
+  height: 40px;
+  background-color: var(--looks-secondary);
+  background-image: linear-gradient(rgba(255, 255, 255, 0.06), rgba(0, 0, 0, 0.08));
+  border-color: var(--looks-secondary-dark);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.25);
+  color: #fff;
+}
+
+/* 3. 标题：图标 + 文字（复刻 Win11Window 标题栏形式，文字恒白） */
+.sa-debugger-sky-window .sa-debugger-sky-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 14px;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.sa-debugger-sky-window .sa-debugger-sky-title img {
+  width: 16px;
+  height: 16px;
+  filter: brightness(0) invert(1) !important;
+}
+
+/* 4. 标签：标题栏中部胶囊页签（选中白底、主题色文字） */
+.sa-debugger-sky-window .sa-debugger-tabs {
+  margin: 0;
+  padding: 0 10px;
+}
+.sa-debugger-sky-window .sa-debugger-tabs li {
+  background-color: rgba(0, 0, 0, 0.18);
+  border-color: rgba(0, 0, 0, 0.2);
+}
+.sa-debugger-sky-window .sa-debugger-tabs li:hover {
+  background-color: rgba(0, 0, 0, 0.28);
+}
+.sa-debugger-sky-window .sa-debugger-tabs li.sa-debugger-tab-selected {
+  background-color: #fff;
+  color: var(--looks-secondary);
+}
+
+/* 5. 右侧按钮组：窗口控件风格（横排、全高 40px、悬停半透明块、关闭红底） */
+.sa-debugger-sky-window .sa-debugger-header-buttons {
+  margin-left: auto;
+  padding: 0;
+  height: 40px;
+  display: flex;
+  align-items: stretch;
+}
+.sa-debugger-sky-window .sa-debugger-header-buttons [class*="shrink-expand-button"] {
+  flex-direction: row;
+  height: 40px;
+  padding: 0 12px;
+  gap: 6px;
+  background: transparent;
+  color: #fff;
+  border: none;
+  border-radius: 0;
+}
+.sa-debugger-sky-window .sa-debugger-header-buttons [class*="shrink-expand-button"]:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+.sa-debugger-sky-window .sa-debugger-header-buttons [class*="shrink-expand-button"]:active {
+  background: rgba(0, 0, 0, 0.18);
+}
+/* 关闭按钮（最后一项）：hover 红底白字，对齐 Win11 关闭控件 */
+.sa-debugger-sky-window .sa-debugger-header-buttons [class*="shrink-expand-button"]:last-child:hover {
+  background: #e81123;
+}
+.sa-debugger-sky-window .sa-debugger-header-buttons img {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  filter: brightness(0) invert(1);
+}
+.sa-debugger-sky-window .sa-debugger-header-buttons span {
+  font-size: 12px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* 6. 内容区：统一窗口主体背景 */
+.sa-debugger-sky-window .sa-debugger-tab-content {
+  background: var(--ui-modal-background);
+  color: var(--ui-modal-foreground);
+}
+
+/* 7. Win11 窗口控件（最小化/最大化/关闭），仅 sky-editor 显示 */
+.sa-debugger-sky-window .sa-debugger-sky-controls {
+  display: flex;
+  align-items: stretch;
+  height: 40px;
+  margin-left: 4px;
+  flex-shrink: 0;
+}
+.sa-debugger-sky-window .sa-debugger-sky-control {
+  width: 46px;
+  height: 40px;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  color: #fff;
+  cursor: pointer;
+}
+.sa-debugger-sky-window .sa-debugger-sky-control:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+.sa-debugger-sky-window .sa-debugger-sky-control:active {
+  background: rgba(0, 0, 0, 0.18);
+}
+.sa-debugger-sky-window .sa-debugger-sky-control:last-child:hover {
+  background: #e81123;
+}
+
+/* 8. 最小化：仅保留标题栏 */
+.sa-debugger-interface.sa-debugger-sky-window.sa-debugger-sky-minimized {
+  height: 40px !important;
+}
+.sa-debugger-sky-window.sa-debugger-sky-minimized .sa-debugger-tab-content,
+.sa-debugger-sky-window.sa-debugger-sky-minimized .sa-debugger-compiler-warning {
+  display: none !important;
+}
+
+/* 9. 最大化：铺满视口 */
+.sa-debugger-interface.sa-debugger-sky-window.sa-debugger-sky-maximized {
+  left: 0 !important;
+  top: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
 }

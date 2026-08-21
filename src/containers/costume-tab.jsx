@@ -6,6 +6,7 @@ import VM from 'scratch-vm';
 
 import AssetPanel from '../components/asset-panel/asset-panel.jsx';
 import PaintEditorWrapper from './paint-editor-wrapper.jsx';
+import ConfirmDialog from '../components/confirm-dialog/confirm-dialog.jsx';
 import {connect} from 'react-redux';
 import {handleFileUpload, costumeUpload} from '../lib/file-uploader.js';
 import errorBoundaryHOC from '../lib/error-boundary-hoc.jsx';
@@ -66,6 +67,16 @@ let messages = defineMessages({
         defaultMessage: 'Upload Costume',
         description: 'Button to add a costume by uploading a file in the editor tab',
         id: 'gui.costumeTab.addFileCostume'
+    },
+    deleteCheckedTitle: {
+        defaultMessage: '删除已勾选的造型/背景',
+        description: 'Title of the confirm dialog for deleting checked costumes',
+        id: 'gui.costumeTab.deleteCheckedTitle'
+    },
+    deleteCheckedMessage: {
+        defaultMessage: '确定要删除已勾选的 {count} 项吗？此操作不可撤销。',
+        description: 'Message of the confirm dialog for deleting checked costumes',
+        id: 'gui.costumeTab.deleteCheckedMessage'
     }
 });
 
@@ -77,6 +88,7 @@ class CostumeTab extends React.Component {
         bindAll(this, [
             'handleSelectCostume',
             'handleDeleteCostume',
+            'handleDeleteChecked',
             'handleDuplicateCostume',
             'handleExportCostume',
             'handleNewCostume',
@@ -86,6 +98,9 @@ class CostumeTab extends React.Component {
             'handleFileUploadClick',
             'handleCostumeUpload',
             'handleDrop',
+            'handleToggleCheck',
+            'handleCancelDeleteChecked',
+            'handleConfirmDeleteChecked',
             'setFileInput'
         ]);
         const {
@@ -95,9 +110,17 @@ class CostumeTab extends React.Component {
         } = props;
         const target = editingTarget && sprites[editingTarget] ? sprites[editingTarget] : stage;
         if (target && target.currentCostume) {
-            this.state = {selectedCostumeIndex: target.currentCostume};
+            this.state = {
+                selectedCostumeIndex: target.currentCostume,
+                checkedCostumes: new Set(),
+                confirmDeleteOpen: false
+            };
         } else {
-            this.state = {selectedCostumeIndex: 0};
+            this.state = {
+                selectedCostumeIndex: 0,
+                checkedCostumes: new Set(),
+                confirmDeleteOpen: false
+            };
         }
     }
     componentWillReceiveProps (nextProps) {
@@ -137,6 +160,35 @@ class CostumeTab extends React.Component {
         this.props.dispatchUpdateRestore({
             restoreFun: restoreCostumeFun,
             deletedItem: 'Costume'
+        });
+    }
+    handleToggleCheck (costumeIndex) {
+        const checked = new Set(this.state.checkedCostumes);
+        if (checked.has(costumeIndex)) {
+            checked.delete(costumeIndex);
+        } else {
+            checked.add(costumeIndex);
+        }
+        this.setState({checkedCostumes: checked});
+    }
+    handleDeleteChecked () {
+        this.setState({confirmDeleteOpen: true});
+    }
+    handleCancelDeleteChecked () {
+        this.setState({confirmDeleteOpen: false});
+    }
+    handleConfirmDeleteChecked () {
+        // Delete from the largest index to the smallest to keep indices valid
+        const indexes = [...this.state.checkedCostumes].sort((a, b) => b - a);
+        indexes.forEach(index => {
+            if (this.props.vm.editingTarget.sprite.costumes[index]) {
+                this.props.vm.deleteCostume(index);
+            }
+        });
+        this.setState({
+            checkedCostumes: new Set(),
+            confirmDeleteOpen: false,
+            selectedCostumeIndex: 0
         });
     }
     handleDuplicateCostume (costumeIndex) {
@@ -273,6 +325,7 @@ class CostumeTab extends React.Component {
             details: costume.size ? this.formatCostumeDetails(costume.size, costume.bitmapResolution) : null,
             dragPayload: costume
         })) : [];
+        const checkedCount = this.state.checkedCostumes.size;
         return (
             <AssetPanel
                 buttons={[
@@ -306,10 +359,14 @@ class CostumeTab extends React.Component {
                         onClick: addLibraryFunc
                     }
                 ]}
+                checkedItems={this.state.checkedCostumes}
+                checkedCount={checkedCount}
                 dragType={DragConstants.COSTUME}
                 isRtl={isRtl}
                 items={costumeData}
                 selectedItemIndex={this.state.selectedCostumeIndex}
+                onCheckToggle={this.handleToggleCheck}
+                onDeleteChecked={checkedCount > 0 ? this.handleDeleteChecked : null}
                 onDeleteClick={target && target.costumes && target.costumes.length > 1 ?
                     this.handleDeleteCostume : null}
                 onDrop={this.handleDrop}
@@ -323,6 +380,15 @@ class CostumeTab extends React.Component {
                     /> :
                     null
                 }
+                {this.state.confirmDeleteOpen ? (
+                    <ConfirmDialog
+                        title={intl.formatMessage(messages.deleteCheckedTitle)}
+                        message={intl.formatMessage(messages.deleteCheckedMessage, {count: checkedCount})}
+                        onCancel={this.handleCancelDeleteChecked}
+                        onConfirm={this.handleConfirmDeleteChecked}
+                        uiTheme={this.props.uiTheme}
+                    />
+                ) : null}
             </AssetPanel>
         );
     }
@@ -352,6 +418,7 @@ CostumeTab.propTypes = {
             name: PropTypes.string.isRequired
         }))
     }),
+    uiTheme: PropTypes.string,
     vm: PropTypes.instanceOf(VM)
 };
 
@@ -360,7 +427,8 @@ const mapStateToProps = state => ({
     isRtl: state.locales.isRtl,
     sprites: state.scratchGui.targets.sprites,
     stage: state.scratchGui.targets.stage,
-    dragging: state.scratchGui.assetDrag.dragging
+    dragging: state.scratchGui.assetDrag.dragging,
+    uiTheme: state.scratchGui.uiTheme
 });
 
 const mapDispatchToProps = dispatch => ({

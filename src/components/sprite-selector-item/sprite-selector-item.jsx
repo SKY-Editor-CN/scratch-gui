@@ -30,6 +30,21 @@ const SpriteSelectorItem = props => (
         {typeof props.number === 'undefined' ? null : (
             <div className={styles.number}>{props.number}</div>
         )}
+        {props.onCheckToggle ? (
+            <label
+                className={styles.checkButton}
+                onClick={e => e.stopPropagation()}
+                onMouseDown={e => e.stopPropagation()}
+                onTouchStart={e => e.stopPropagation()}
+            >
+                <input
+                    type="checkbox"
+                    checked={!!props.checked}
+                    onChange={() => props.onCheckToggle()}
+                    onClick={e => e.stopPropagation()}
+                />
+            </label>
+        ) : null}
         {props.costumeURL ? (
             <div className={styles.spriteImageOuter}>
                 <div className={styles.spriteImageInner}>
@@ -48,7 +63,7 @@ const SpriteSelectorItem = props => (
                 <div className={styles.spriteDetails}>{props.details}</div>
             ) : null}
         </div>
-        {(props.selected && props.onDeleteButtonClick) ? (
+        {(props.selected && props.onDeleteButtonClick && !props.checkedCount) ? (
             <DeleteButton
                 className={styles.deleteButton}
                 onClick={props.onDeleteButtonClick}
@@ -83,12 +98,22 @@ const SpriteSelectorItem = props => (
                         />
                     </MenuItem>
                 ) : null}
-                {props.onDeleteButtonClick ? (
+                {props.onDeleteButtonClick && !props.checkedCount ? (
                     <DangerousMenuItem onClick={props.onDeleteButtonClick}>
                         <FormattedMessage
                             defaultMessage="delete"
                             description="Menu item to delete in the right click menu"
                             id="gui.spriteSelectorItem.contextMenuDelete"
+                        />
+                    </DangerousMenuItem>
+                ) : null }
+                {props.checkedCount > 0 && props.onDeleteChecked ? (
+                    <DangerousMenuItem onClick={props.onDeleteChecked}>
+                        <FormattedMessage
+                            defaultMessage="删除已勾选({count}项)"
+                            description="Menu item to delete all checked items in the right click menu"
+                            id="gui.spriteSelectorItem.contextMenuDeleteChecked"
+                            values={{count: props.checkedCount}}
                         />
                     </DangerousMenuItem>
                 ) : null }
@@ -98,6 +123,8 @@ const SpriteSelectorItem = props => (
 );
 
 SpriteSelectorItem.propTypes = {
+    checked: PropTypes.bool,
+    checkedCount: PropTypes.number,
     className: PropTypes.string,
     componentRef: PropTypes.func,
     costumeURL: PropTypes.string,
@@ -106,6 +133,8 @@ SpriteSelectorItem.propTypes = {
     name: PropTypes.any,
     number: PropTypes.number,
     onClick: PropTypes.func,
+    onCheckToggle: PropTypes.func,
+    onDeleteChecked: PropTypes.func,
     onDeleteButtonClick: PropTypes.func,
     onDuplicateButtonClick: PropTypes.func,
     onExportButtonClick: PropTypes.func,

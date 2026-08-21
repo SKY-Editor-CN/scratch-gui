@@ -5,6 +5,7 @@ import {defineMessages, intlShape, injectIntl} from 'react-intl';
 import VM from 'scratch-vm';
 
 import AssetPanel from '../components/asset-panel/asset-panel.jsx';
+import ConfirmDialog from '../components/confirm-dialog/confirm-dialog.jsx';
 import soundIcon from '../components/asset-panel/icon--sound.svg';
 import soundIconRtl from '../components/asset-panel/icon--sound-rtl.svg';
 import addSoundFromLibraryIcon from '../components/asset-panel/icon--add-sound-lib.svg';
@@ -47,6 +48,7 @@ class SoundTab extends React.Component {
         bindAll(this, [
             'handleSelectSound',
             'handleDeleteSound',
+            'handleDeleteChecked',
             'handleDuplicateSound',
             'handleExportSound',
             'handleNewSound',
@@ -54,9 +56,16 @@ class SoundTab extends React.Component {
             'handleFileUploadClick',
             'handleSoundUpload',
             'handleDrop',
+            'handleToggleCheck',
+            'handleCancelDeleteChecked',
+            'handleConfirmDeleteChecked',
             'setFileInput'
         ]);
-        this.state = {selectedSoundIndex: 0};
+        this.state = {
+            selectedSoundIndex: 0,
+            checkedSounds: new Set(),
+            confirmDeleteOpen: false
+        };
     }
 
     componentWillReceiveProps (nextProps) {
@@ -73,7 +82,11 @@ class SoundTab extends React.Component {
 
         // If switching editing targets, reset the sound index
         if (this.props.editingTarget !== editingTarget) {
-            this.setState({selectedSoundIndex: 0});
+            this.setState({
+                selectedSoundIndex: 0,
+                checkedSounds: new Set(),
+                confirmDeleteOpen: false
+            });
         } else if (this.state.selectedSoundIndex > target.sounds.length - 1) {
             this.setState({selectedSoundIndex: Math.max(target.sounds.length - 1, 0)});
         }
@@ -89,6 +102,39 @@ class SoundTab extends React.Component {
             this.setState({selectedSoundIndex: Math.max(0, soundIndex - 1)});
         }
         this.props.dispatchUpdateRestore({restoreFun, deletedItem: 'Sound'});
+    }
+
+    handleToggleCheck (soundIndex) {
+        const checked = new Set(this.state.checkedSounds);
+        if (checked.has(soundIndex)) {
+            checked.delete(soundIndex);
+        } else {
+            checked.add(soundIndex);
+        }
+        this.setState({checkedSounds: checked});
+    }
+
+    handleDeleteChecked () {
+        this.setState({confirmDeleteOpen: true});
+    }
+
+    handleCancelDeleteChecked () {
+        this.setState({confirmDeleteOpen: false});
+    }
+
+    handleConfirmDeleteChecked () {
+        // Delete from the largest index to the smallest to keep indices valid
+        const indexes = [...this.state.checkedSounds].sort((a, b) => b - a);
+        indexes.forEach(index => {
+            if (this.props.vm.editingTarget.sprite.sounds[index]) {
+                this.props.vm.deleteSound(index);
+            }
+        });
+        this.setState({
+            checkedSounds: new Set(),
+            confirmDeleteOpen: false,
+            selectedSoundIndex: 0
+        });
     }
 
     handleExportSound (soundIndex) {
@@ -201,6 +247,8 @@ class SoundTab extends React.Component {
             }
         )) : [];
 
+        const checkedCount = this.state.checkedSounds.size;
+
         const messages = defineMessages({
             fileUploadSound: {
                 defaultMessage: 'Upload Sound',
@@ -221,6 +269,16 @@ class SoundTab extends React.Component {
                 defaultMessage: 'Choose a Sound',
                 description: 'Button to add a sound in the editor tab',
                 id: 'gui.soundTab.addSoundFromLibrary'
+            },
+            deleteCheckedTitle: {
+                defaultMessage: '删除已勾选的声音',
+                description: 'Title of the confirm dialog for deleting checked sounds',
+                id: 'gui.soundTab.deleteCheckedTitle'
+            },
+            deleteCheckedMessage: {
+                defaultMessage: '确定要删除已勾选的 {count} 项吗？此操作不可撤销。',
+                description: 'Message of the confirm dialog for deleting checked sounds',
+                id: 'gui.soundTab.deleteCheckedMessage'
             }
         });
 
@@ -251,10 +309,14 @@ class SoundTab extends React.Component {
                     img: searchIcon,
                     onClick: onNewSoundFromLibraryClick
                 }] : []}
+                checkedItems={this.state.checkedSounds}
+                checkedCount={checkedCount}
                 dragType={DragConstants.SOUND}
                 isRtl={isRtl}
                 items={sounds}
                 selectedItemIndex={this.state.selectedSoundIndex}
+                onCheckToggle={this.handleToggleCheck}
+                onDeleteChecked={checkedCount > 0 ? this.handleDeleteChecked : null}
                 onDeleteClick={this.handleDeleteSound}
                 onDrop={this.handleDrop}
                 onDuplicateClick={this.handleDuplicateSound}
@@ -280,6 +342,15 @@ class SoundTab extends React.Component {
                         onRequestClose={this.props.onRequestCloseSoundLibrary}
                     />
                 ) : null}
+                {this.state.confirmDeleteOpen ? (
+                    <ConfirmDialog
+                        title={intl.formatMessage(messages.deleteCheckedTitle)}
+                        message={intl.formatMessage(messages.deleteCheckedMessage, {count: checkedCount})}
+                        onCancel={this.handleCancelDeleteChecked}
+                        onConfirm={this.handleConfirmDeleteChecked}
+                        uiTheme={this.props.uiTheme}
+                    />
+                ) : null}
             </AssetPanel>
         );
     }
@@ -298,6 +369,7 @@ SoundTab.propTypes = {
     onShowImporting: PropTypes.func.isRequired,
     soundLibraryVisible: PropTypes.bool,
     soundRecorderVisible: PropTypes.bool,
+    uiTheme: PropTypes.string,
     sprites: PropTypes.shape({
         id: PropTypes.shape({
             sounds: PropTypes.arrayOf(PropTypes.shape({
@@ -319,7 +391,8 @@ const mapStateToProps = state => ({
     sprites: state.scratchGui.targets.sprites,
     stage: state.scratchGui.targets.stage,
     soundLibraryVisible: state.scratchGui.modals.soundLibrary,
-    soundRecorderVisible: state.scratchGui.modals.soundRecorder
+    soundRecorderVisible: state.scratchGui.modals.soundRecorder,
+    uiTheme: state.scratchGui.uiTheme
 });
 
 const mapDispatchToProps = dispatch => ({

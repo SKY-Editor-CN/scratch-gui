@@ -8,6 +8,7 @@ import {closeLoadingProject, closeRestorePointModal, openLoadingProject} from '.
 import {LoadingStates, getIsShowingProject, onLoadedProject, requestProjectUpload} from '../reducers/project-state';
 import {setFileHandle} from '../reducers/tw';
 import TWRestorePointModal from '../components/tw-restore-point-modal/restore-point-modal.jsx';
+import RestorePointWindow from '../components/tw-restore-point-modal/restore-point-window.jsx';
 import RestorePointAPI from '../lib/tw-restore-point-api';
 import log from '../lib/log';
 import downloadBlob from '../lib/download-blob.js';
@@ -307,21 +308,27 @@ class TWRestorePointManager extends React.Component {
 
     render () {
         if (this.props.isModalVisible) {
+            const bodyProps = {
+                onClose: this.props.onCloseModal,
+                onClickDelete: this.handleClickDelete,
+                onClickDeleteAll: this.handleClickDeleteAll,
+                onClickExport: this.handleClickExport,
+                onClickLoad: this.handleClickLoad,
+                interval: this.state.interval,
+                onChangeInterval: this.handleChangeInterval,
+                isExporting: this.isExportingRestorePoint,
+                isLoading: this.state.loading,
+                totalSize: this.state.totalSize,
+                restorePoints: this.state.restorePoints,
+                error: this.state.error
+            };
+            if (this.props.uiTheme === 'sky-editor') {
+                return <RestorePointWindow {...bodyProps} />;
+            }
             return (
                 <TWRestorePointModal
-                    onClose={this.props.onCloseModal}
+                    {...bodyProps}
                     onClickCreate={this.handleClickCreate}
-                    onClickDelete={this.handleClickDelete}
-                    onClickDeleteAll={this.handleClickDeleteAll}
-                    onClickExport={this.handleClickExport}
-                    onClickLoad={this.handleClickLoad}
-                    interval={this.state.interval}
-                    onChangeInterval={this.handleChangeInterval}
-                    isExporting={this.isExportingRestorePoint}
-                    isLoading={this.state.loading}
-                    totalSize={this.state.totalSize}
-                    restorePoints={this.state.restorePoints}
-                    error={this.state.error}
                 />
             );
         }
@@ -343,6 +350,7 @@ TWRestorePointManager.propTypes = {
     isShowingProject: PropTypes.bool.isRequired,
     isModalVisible: PropTypes.bool.isRequired,
     hasEverEnteredEditor: PropTypes.bool.isRequired,
+    uiTheme: PropTypes.string,
     vm: PropTypes.shape({
         on: PropTypes.func.isRequired,
         off: PropTypes.func.isRequired,
@@ -361,6 +369,7 @@ const mapStateToProps = state => ({
     isShowingProject: getIsShowingProject(state.scratchGui.projectState.loadingState),
     isModalVisible: state.scratchGui.modals.restorePointModal,
     hasEverEnteredEditor: state.scratchGui.mode.hasEverEnteredEditor,
+    uiTheme: state.scratchGui.uiTheme,
     vm: state.scratchGui.vm
 });
 

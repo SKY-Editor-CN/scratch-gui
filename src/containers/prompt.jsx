@@ -3,6 +3,7 @@ import React from 'react';
 import bindAll from 'lodash.bindall';
 import PromptComponent from '../components/prompt/prompt.jsx';
 import VM from 'scratch-vm';
+import {connect} from 'react-redux';
 import {SCRATCH_MAX_CLOUD_VARIABLES} from '../lib/tw-cloud-limits.js';
 
 class Prompt extends React.Component {
@@ -60,6 +61,7 @@ class Prompt extends React.Component {
     render () {
         return (
             <PromptComponent
+                uiTheme={this.props.uiTheme}
                 isAddingCloudVariableScratchSafe={this.state.isAddingCloudVariableScratchSafe}
                 canAddCloudVariable={this.state.canAddCloudVariable}
                 cloudSelected={this.state.cloudSelected}
@@ -93,7 +95,14 @@ Prompt.propTypes = {
     showCloudOption: PropTypes.bool.isRequired,
     showVariableOptions: PropTypes.bool.isRequired,
     title: PropTypes.string.isRequired,
-    vm: PropTypes.instanceOf(VM)
+    vm: PropTypes.instanceOf(VM),
+    uiTheme: PropTypes.string
 };
 
-export default Prompt;
+const mapStateToProps = state => ({
+    uiTheme: state.scratchGui.uiTheme
+});
+
+export default connect(
+    mapStateToProps
+)(Prompt);

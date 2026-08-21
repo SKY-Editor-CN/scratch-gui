@@ -2,7 +2,7 @@ import bindAll from 'lodash.bindall';
 import React from 'react';
 import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
-import {intlShape, injectIntl} from 'react-intl';
+import {intlShape, injectIntl, defineMessages} from 'react-intl';
 
 import {
     openSpriteLibrary,
@@ -12,6 +12,7 @@ import {activateTab, COSTUMES_TAB_INDEX, BLOCKS_TAB_INDEX} from '../reducers/edi
 import {setReceivedBlocks} from '../reducers/hovered-target';
 import {showStandardAlert, closeAlertWithId} from '../reducers/alerts';
 import {setRestore} from '../reducers/restore-deletion';
+import ConfirmDialog from '../components/confirm-dialog/confirm-dialog.jsx';
 import DragConstants from '../lib/drag-constants';
 import TargetPaneComponent from '../components/target-pane/target-pane.jsx';
 import {getSpriteLibrary} from '../lib/libraries/tw-async-libraries';
@@ -24,6 +25,19 @@ import randomizeSpritePosition from '../lib/randomize-sprite-position';
 import downloadBlob from '../lib/download-blob';
 import log from '../lib/log';
 import {placeInViewport} from '../lib/backpack/code-payload.js';
+
+const messages = defineMessages({
+    deleteCheckedTitle: {
+        defaultMessage: '删除已勾选的角色',
+        description: 'Title of the confirm dialog for deleting checked sprites',
+        id: 'gui.targetPane.deleteCheckedTitle'
+    },
+    deleteCheckedMessage: {
+        defaultMessage: '确定要删除已勾选的 {count} 个角色吗？此操作不可撤销。',
+        description: 'Message of the confirm dialog for deleting checked sprites',
+        id: 'gui.targetPane.deleteCheckedMessage'
+    }
+});
 
 class TargetPane extends React.Component {
     constructor (props) {
@@ -38,6 +52,7 @@ class TargetPane extends React.Component {
             'handleChangeSpriteVisibility',
             'handleChangeSpriteX',
             'handleChangeSpriteY',
+            'handleDeleteChecked',
             'handleDeleteSprite',
             'handleDrop',
             'handleDuplicateSprite',
@@ -48,8 +63,15 @@ class TargetPane extends React.Component {
             'handlePaintSpriteClick',
             'handleFileUploadClick',
             'handleSpriteUpload',
+            'handleToggleCheck',
+            'handleCancelDeleteChecked',
+            'handleConfirmDeleteChecked',
             'setFileInput'
         ]);
+        this.state = {
+            checkedSprites: new Set(),
+            confirmDeleteOpen: false
+        };
     }
     componentDidMount () {
         this.props.vm.addListener('BLOCK_DRAG_END', this.handleBlockDragEnd);
@@ -87,6 +109,33 @@ class TargetPane extends React.Component {
             deletedItem: 'Sprite'
         });
 
+    }
+    handleToggleCheck (id) {
+        const checked = new Set(this.state.checkedSprites);
+        if (checked.has(id)) {
+            checked.delete(id);
+        } else {
+            checked.add(id);
+        }
+        this.setState({checkedSprites: checked});
+    }
+    handleDeleteChecked () {
+        this.setState({confirmDeleteOpen: true});
+    }
+    handleCancelDeleteChecked () {
+        this.setState({confirmDeleteOpen: false});
+    }
+    handleConfirmDeleteChecked () {
+        this.state.checkedSprites.forEach(id => {
+            const sprite = this.props.vm.runtime.getTargetById(id);
+            if (sprite) {
+                this.props.vm.deleteSprite(id);
+            }
+        });
+        this.setState({
+            checkedSprites: new Set(),
+            confirmDeleteOpen: false
+        });
     }
     handleDuplicateSprite (id) {
         this.props.vm.duplicateSprite(id);
@@ -215,6 +264,7 @@ class TargetPane extends React.Component {
         /* eslint-disable no-unused-vars */
         const {
             dispatchUpdateRestore,
+            intl,
             isRtl,
             onActivateTab,
             onCloseImporting,
@@ -225,28 +275,44 @@ class TargetPane extends React.Component {
             ...componentProps
         } = this.props;
         /* eslint-enable no-unused-vars */
+        const checkedCount = this.state.checkedSprites.size;
         return (
-            <TargetPaneComponent
-                {...componentProps}
-                fileInputRef={this.setFileInput}
-                onActivateBlocksTab={this.handleActivateBlocksTab}
-                onChangeSpriteDirection={this.handleChangeSpriteDirection}
-                onChangeSpriteName={this.handleChangeSpriteName}
-                onChangeSpriteRotationStyle={this.handleChangeSpriteRotationStyle}
-                onChangeSpriteSize={this.handleChangeSpriteSize}
-                onChangeSpriteVisibility={this.handleChangeSpriteVisibility}
-                onChangeSpriteX={this.handleChangeSpriteX}
-                onChangeSpriteY={this.handleChangeSpriteY}
-                onDeleteSprite={this.handleDeleteSprite}
-                onDrop={this.handleDrop}
-                onDuplicateSprite={this.handleDuplicateSprite}
-                onExportSprite={this.handleExportSprite}
-                onFileUploadClick={this.handleFileUploadClick}
-                onPaintSpriteClick={this.handlePaintSpriteClick}
-                onSelectSprite={this.handleSelectSprite}
-                onSpriteUpload={this.handleSpriteUpload}
-                onSurpriseSpriteClick={this.handleSurpriseSpriteClick}
-            />
+            <React.Fragment>
+                <TargetPaneComponent
+                    {...componentProps}
+                    checkedCount={checkedCount}
+                    checkedItems={this.state.checkedSprites}
+                    fileInputRef={this.setFileInput}
+                    onActivateBlocksTab={this.handleActivateBlocksTab}
+                    onChangeSpriteDirection={this.handleChangeSpriteDirection}
+                    onChangeSpriteName={this.handleChangeSpriteName}
+                    onChangeSpriteRotationStyle={this.handleChangeSpriteRotationStyle}
+                    onChangeSpriteSize={this.handleChangeSpriteSize}
+                    onChangeSpriteVisibility={this.handleChangeSpriteVisibility}
+                    onChangeSpriteX={this.handleChangeSpriteX}
+                    onChangeSpriteY={this.handleChangeSpriteY}
+                    onCheckToggle={this.handleToggleCheck}
+                    onDeleteChecked={checkedCount > 0 ? this.handleDeleteChecked : null}
+                    onDeleteSprite={this.handleDeleteSprite}
+                    onDrop={this.handleDrop}
+                    onDuplicateSprite={this.handleDuplicateSprite}
+                    onExportSprite={this.handleExportSprite}
+                    onFileUploadClick={this.handleFileUploadClick}
+                    onPaintSpriteClick={this.handlePaintSpriteClick}
+                    onSelectSprite={this.handleSelectSprite}
+                    onSpriteUpload={this.handleSpriteUpload}
+                    onSurpriseSpriteClick={this.handleSurpriseSpriteClick}
+                />
+                {this.state.confirmDeleteOpen ? (
+                    <ConfirmDialog
+                        title={intl.formatMessage(messages.deleteCheckedTitle)}
+                        message={intl.formatMessage(messages.deleteCheckedMessage, {count: checkedCount})}
+                        onCancel={this.handleCancelDeleteChecked}
+                        onConfirm={this.handleConfirmDeleteChecked}
+                        uiTheme={this.props.uiTheme}
+                    />
+                ) : null}
+            </React.Fragment>
         );
     }
 }
@@ -272,6 +338,7 @@ const mapStateToProps = state => ({
     sprites: state.scratchGui.targets.sprites,
     stage: state.scratchGui.targets.stage,
     raiseSprites: state.scratchGui.blockDrag,
+    uiTheme: state.scratchGui.uiTheme,
     workspaceMetrics: state.scratchGui.workspaceMetrics
 });
 

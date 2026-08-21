@@ -7,7 +7,7 @@ export default async function createPerformanceTab({ debug, addon, console, msg 
   // In optimized graphs everything still looks good
   const fancyGraphs = addon.settings.get("fancy_graphs");
   const lineWidth = fancyGraphs ? 1 : 2;
-  const lineColor = fancyGraphs ? "hsla(163, 85%, 40%, 0.5)" : "hsla(163, 85%, 40%, 1)";
+  const lineColor = getComputedStyle(document.documentElement).getPropertyValue("--looks-secondary").trim() || "#29beb8";
 
   const tab = debug.createHeaderTab({
     text: msg("tab-performance"),
@@ -52,7 +52,7 @@ export default async function createPerformanceTab({ debug, addon, console, msg 
           data: Array(NUMBER_OF_POINTS).fill(-1),
           borderWidth: lineWidth,
           fill: fancyGraphs,
-          backgroundColor: "#29beb8",
+          backgroundColor: lineColor,
           borderColor: lineColor,
         },
       ],
@@ -90,7 +90,7 @@ export default async function createPerformanceTab({ debug, addon, console, msg 
           data: Array(NUMBER_OF_POINTS).fill(-1),
           borderWidth: lineWidth,
           fill: fancyGraphs,
-          backgroundColor: "#29beb8",
+          backgroundColor: lineColor,
           borderColor: lineColor,
         },
       ],

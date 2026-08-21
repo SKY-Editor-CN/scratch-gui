@@ -70,6 +70,10 @@ const guiColors = {
     'badge-background': '#dbebff',
     'badge-border': '#b9d6ff',
 
+    'theme-card-background': '#ffffff',
+    'theme-card-border': 'var(--text-primary)',
+    'theme-card-selected-border': '#4C97FF',
+
     'fullscreen-background': '#ffffff',
     'fullscreen-accent': '#e8edf1',
 

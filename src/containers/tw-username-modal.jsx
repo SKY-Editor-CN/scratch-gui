@@ -4,6 +4,7 @@ import bindAll from 'lodash.bindall';
 import {connect} from 'react-redux';
 import {setUsername, setUsernameInvalid} from '../reducers/tw';
 import UsernameModalComponent from '../components/tw-username-modal/username-modal.jsx';
+import UsernameWindow from '../components/tw-username-modal/username-window.jsx';
 import {closeUsernameModal} from '../reducers/modals';
 import {generateRandomUsername} from '../lib/tw-username';
 import isScratchDesktop from '../lib/isScratchDesktop';
@@ -51,19 +52,21 @@ class UsernameModal extends React.Component {
         this.props.onSetUsername(randomUsername);
     }
     render () {
-        return (
-            <UsernameModalComponent
-                mustChangeUsername={this.props.usernameInvalid}
-                value={this.state.value}
-                valueValid={this.state.valueValid}
-                onKeyPress={this.handleKeyPress}
-                onFocus={this.handleFocus}
-                onOk={this.handleOk}
-                onCancel={this.handleCancel}
-                onChange={this.handleChange}
-                onReset={this.handleReset}
-            />
-        );
+        const bodyProps = {
+            mustChangeUsername: this.props.usernameInvalid,
+            value: this.state.value,
+            valueValid: this.state.valueValid,
+            onKeyPress: this.handleKeyPress,
+            onFocus: this.handleFocus,
+            onOk: this.handleOk,
+            onCancel: this.handleCancel,
+            onChange: this.handleChange,
+            onReset: this.handleReset
+        };
+        if (this.props.uiTheme === 'sky-editor') {
+            return <UsernameWindow {...bodyProps} />;
+        }
+        return <UsernameModalComponent {...bodyProps} />;
     }
 }
 
@@ -71,12 +74,14 @@ UsernameModal.propTypes = {
     onCloseUsernameModal: PropTypes.func,
     onSetUsername: PropTypes.func,
     username: PropTypes.string,
-    usernameInvalid: PropTypes.bool
+    usernameInvalid: PropTypes.bool,
+    uiTheme: PropTypes.string
 };
 
 const mapStateToProps = state => ({
     username: state.scratchGui.tw.username,
-    usernameInvalid: state.scratchGui.tw.usernameInvalid
+    usernameInvalid: state.scratchGui.tw.usernameInvalid,
+    uiTheme: state.scratchGui.uiTheme
 });
 
 const mapDispatchToProps = dispatch => ({

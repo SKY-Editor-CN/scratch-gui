@@ -19,7 +19,7 @@ const SET_PLATFORM_MISMATCH_DETAILS = 'tw/SET_PLATFORM_MISMATCH_DETAILS';
 const SET_PROJECT_ERROR = 'tw/SET_PROJECT_ERROR';
 
 export const initialState = {
-    framerate: 30,
+    framerate: 60,
     interpolation: false,
     cloud: true,
     username: '',

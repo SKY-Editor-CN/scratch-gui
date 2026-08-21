@@ -17,18 +17,11 @@
 @import "../../css/colors.css";
 @import "../../css/filters.css";
 
-body {
-    background-color: $page-background;
-    color: $page-foreground;
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-    margin: 0;
-}
-
-a[href] {
+.container a[href] {
     color: $link-color;
     text-decoration: underline;
 }
-a:active, a:focus {
+.container a:active, .container a:focus {
     outline: none;
     box-shadow: 0 0 0 3px $looks-transparent;
 }
@@ -42,6 +35,9 @@ a:active, a:focus {
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    background-color: $page-background;
+    color: $page-foreground;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 .section {

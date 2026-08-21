@@ -78,14 +78,8 @@ IntervalSelector.propTypes = {
     onChange: PropTypes.func.isRequired
 };
 
-const RestorePointModal = props => (
-    <Modal
-        className={styles.modalContent}
-        onRequestClose={props.onClose}
-        contentLabel={props.intl.formatMessage(messages.title)}
-        id="restorePointModal"
-    >
-        <div className={styles.body}>
+export const RestorePointModalBody = props => (
+    <React.Fragment>
             <p>
                 <FormattedMessage
                     // eslint-disable-next-line max-len
@@ -211,16 +205,26 @@ const RestorePointModal = props => (
                     </div>
                 </React.Fragment>
             )}
+    </React.Fragment>
+);
+
+const RestorePointModal = ({intl, onClickCreate, onClose, ...bodyProps}) => (
+    <Modal
+        className={styles.modalContent}
+        onRequestClose={onClose}
+        contentLabel={intl.formatMessage(messages.title)}
+        id="restorePointModal"
+    >
+        <div className={styles.body}>
+            <RestorePointModalBody {...bodyProps} intl={intl} />
         </div>
     </Modal>
 );
 
-RestorePointModal.propTypes = {
+const restorePointModalBodyPropTypes = {
     intl: intlShape,
     interval: PropTypes.number.isRequired,
     onChangeInterval: PropTypes.func.isRequired,
-    onClose: PropTypes.func.isRequired,
-    onClickCreate: PropTypes.func.isRequired,
     onClickDelete: PropTypes.func.isRequired,
     onClickDeleteAll: PropTypes.func.isRequired,
     onClickExport: PropTypes.func.isRequired,
@@ -230,6 +234,14 @@ RestorePointModal.propTypes = {
     totalSize: PropTypes.number.isRequired,
     restorePoints: PropTypes.arrayOf(PropTypes.shape({})),
     error: PropTypes.string
+};
+
+RestorePointModalBody.propTypes = restorePointModalBodyPropTypes;
+
+RestorePointModal.propTypes = {
+    ...restorePointModalBodyPropTypes,
+    onClose: PropTypes.func.isRequired,
+    onClickCreate: PropTypes.func.isRequired
 };
 
 export default injectIntl(RestorePointModal);

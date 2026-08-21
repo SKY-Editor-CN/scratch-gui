@@ -7,6 +7,7 @@ import MenuBarMenu from './menu-bar-menu.jsx';
 import {MenuSection} from '../menu/menu.jsx';
 import MenuLabel from './tw-menu-label.jsx';
 import TWAccentThemeMenu from './tw-theme-accent.jsx';
+import TWUiThemeMenu from './tw-ui-theme.jsx';
 import TWGuiThemeMenu from './tw-theme-gui.jsx';
 import TWBlocksThemeMenu from './tw-theme-blocks.jsx';
 import TWDesktopSettings from './tw-desktop-settings.jsx';
@@ -23,55 +24,81 @@ const SettingsMenu = ({
     isRtl,
     onClickDesktopSettings,
     onOpenCustomSettings,
+    onOpenSettingsWindow,
     onRequestClose,
     onRequestOpen,
-    settingsMenuOpen
-}) => (
-    <MenuLabel
-        open={settingsMenuOpen}
-        onOpen={onRequestOpen}
-        onClose={onRequestClose}
-    >
-        <img
-            src={settingsIcon}
-            draggable={false}
-            width={20}
-            height={20}
+    settingsMenuOpen,
+    uiTheme
+}) => {
+    const titleMessage = (
+        <FormattedMessage
+            defaultMessage="Settings"
+            description="Settings menu"
+            id="gui.menuBar.settings"
         />
-        <span className={styles.dropdownLabel}>
-            <FormattedMessage
-                defaultMessage="Settings"
-                description="Settings menu"
-                id="gui.menuBar.settings"
-            />
-        </span>
-        <img
-            src={dropdownCaret}
-            draggable={false}
-            width={8}
-            height={5}
-        />
-        <MenuBarMenu
-            className={menuBarStyles.menuBarMenu}
+    );
+
+    if (uiTheme === 'sky-editor') {
+        return (
+            <div
+                className={`${menuBarStyles.menuBarItem} ${menuBarStyles.hoverable}`}
+                // eslint-disable-next-line react/jsx-no-bind
+                onClick={() => onOpenSettingsWindow('settings')}
+            >
+                <img
+                    src={settingsIcon}
+                    draggable={false}
+                    width={20}
+                    height={20}
+                    alt=""
+                />
+                <span className={menuBarStyles.collapsibleLabel}>{titleMessage}</span>
+            </div>
+        );
+    }
+
+    return (
+        <MenuLabel
             open={settingsMenuOpen}
-            place={isRtl ? 'left' : 'right'}
+            onOpen={onRequestOpen}
+            onClose={onRequestClose}
         >
-            <MenuSection>
-                {canChangeLanguage && <LanguageMenu onRequestCloseSettings={onRequestClose} />}
-                {canChangeTheme && (
-                    <React.Fragment>
-                        <TWGuiThemeMenu />
-                        <TWBlocksThemeMenu
-                            onOpenCustomSettings={onOpenCustomSettings}
-                        />
-                        <TWAccentThemeMenu />
-                    </React.Fragment>
-                )}
-                {onClickDesktopSettings && <TWDesktopSettings onClick={onClickDesktopSettings} />}
-            </MenuSection>
-        </MenuBarMenu>
-    </MenuLabel>
-);
+            <img
+                src={settingsIcon}
+                draggable={false}
+                width={20}
+                height={20}
+            />
+            <span className={styles.dropdownLabel}>{titleMessage}</span>
+            <img
+                src={dropdownCaret}
+                draggable={false}
+                width={8}
+                height={5}
+            />
+            <MenuBarMenu
+                className={menuBarStyles.menuBarMenu}
+                open={settingsMenuOpen}
+                place={isRtl ? 'left' : 'right'}
+            >
+                <MenuSection>
+                    {canChangeLanguage && <LanguageMenu onRequestCloseSettings={onRequestClose} />}
+                    {canChangeTheme && (
+                        <React.Fragment>
+                            <TWUiThemeMenu />
+                            <TWGuiThemeMenu />
+                            <TWBlocksThemeMenu
+                                onOpenCustomSettings={onOpenCustomSettings}
+                            />
+                            <TWAccentThemeMenu />
+                        </React.Fragment>
+                    )}
+                    {onClickDesktopSettings && <TWDesktopSettings onClick={onClickDesktopSettings} />}
+                </MenuSection>
+            </MenuBarMenu>
+        </MenuLabel>
+    );
+};
 
 SettingsMenu.propTypes = {
     canChangeLanguage: PropTypes.bool,
@@ -79,9 +106,11 @@ SettingsMenu.propTypes = {
     isRtl: PropTypes.bool,
     onClickDesktopSettings: PropTypes.func,
     onOpenCustomSettings: PropTypes.func,
+    onOpenSettingsWindow: PropTypes.func,
     onRequestClose: PropTypes.func,
     onRequestOpen: PropTypes.func,
-    settingsMenuOpen: PropTypes.bool
+    settingsMenuOpen: PropTypes.bool,
+    uiTheme: PropTypes.string
 };
 
 export default SettingsMenu;

@@ -401,5 +401,17 @@
     "hide-stage/@name": "隐藏舞台和角色窗格",
     "editor-stepping/@description": "项目运行时高亮正在运行的积木",
     "editor-stepping/@name": "给运行中的积木显示边框",
-    "editor-stepping/@settings-name-highlight-color": "高亮色"
+    "editor-stepping/@settings-name-highlight-color": "高亮色",
+    "tw-disable-cloud-variables/@name": "禁用云变量",
+    "tw-disable-cloud-variables/@description": "默认禁用云变量。你仍然可以通过「编辑 > 启用云变量」菜单重新启用它们。",
+    "tw-disable-compiler/@name": "禁用编辑器中的编译器",
+    "tw-disable-compiler/@description": "默认关闭脚本编辑器中的编译器。你仍然可以通过菜单栏的「高级」按钮手动启用它。",
+    "tw-disable-vibration/@name": "禁用振动",
+    "tw-disable-vibration/@description": "阻止振动和游戏手柄扩展引起振动。",
+    "tw-remove-backpack/@name": "隐藏背包",
+    "tw-remove-backpack/@description": "从编辑器中移除背包功能。",
+    "tw-remove-feedback/@name": "移除反馈按钮",
+    "tw-remove-feedback/@description": "从菜单栏移除反馈按钮。",
+    "tw-straighten-comments/@name": "保持积木注释连接为直线",
+    "tw-straighten-comments/@description": "强制积木注释始终通过水平直线连接到其源积木，而不是斜线。"
 }

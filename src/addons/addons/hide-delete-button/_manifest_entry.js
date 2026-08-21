@@ -10,6 +10,7 @@ const manifest = {
     }
   ],
   "dynamicDisable": true,
+  "enabledByDefault": true,
   "settings": [
     {
       "dynamic": true,

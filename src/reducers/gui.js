@@ -22,6 +22,9 @@ import restoreDeletionReducer, {restoreDeletionInitialState} from './restore-del
 import stageSizeReducer, {stageSizeInitialState} from './stage-size';
 import targetReducer, {targetsInitialState} from './targets';
 import themeReducer, {themeInitialState} from './theme';
+import uiThemeReducer, {uiThemeInitialState} from './ui-theme';
+import menuBarPositionReducer, {menuBarPositionInitialState} from './menu-bar-position';
+import tabLayoutReducer, {tabLayoutInitialState} from './tab-layout';
 import timeoutReducer, {timeoutInitialState} from './timeout';
 import timeTravelReducer, {timeTravelInitialState} from './time-travel';
 import toolboxReducer, {toolboxInitialState} from './toolbox';
@@ -61,6 +64,9 @@ const guiInitialState = {
     restoreDeletion: restoreDeletionInitialState,
     targets: targetsInitialState,
     theme: themeInitialState,
+    uiTheme: uiThemeInitialState,
+    menuBarPosition: menuBarPositionInitialState,
+    tabLayout: tabLayoutInitialState,
     timeout: timeoutInitialState,
     timeTravel: timeTravelInitialState,
     toolbox: toolboxInitialState,
@@ -167,6 +173,9 @@ const guiReducer = combineReducers({
     restoreDeletion: restoreDeletionReducer,
     targets: targetReducer,
     theme: themeReducer,
+    uiTheme: uiThemeReducer,
+    menuBarPosition: menuBarPositionReducer,
+    tabLayout: tabLayoutReducer,
     timeout: timeoutReducer,
     timeTravel: timeTravelReducer,
     toolbox: toolboxReducer,
