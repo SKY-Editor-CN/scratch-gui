@@ -26,3 +26,9 @@ npm-*
 
 # for act
 .secrets
+
+# SKY Editor 内部文档体系（严禁上传开源）
+/文档/
+
+# node_modules 任意层级忽略
+node_modules/

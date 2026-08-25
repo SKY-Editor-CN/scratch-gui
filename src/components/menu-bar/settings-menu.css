@@ -94,8 +94,8 @@
    font-size 14px, generous spacing, hover highlight, rounded setting rows. */
 .window-settings {
     color: $ui-modal-foreground;
-    /* 左右边距与原高级设置页 .body 一致（1.5rem 2.25rem） */
-    padding: 0.5rem 2.25rem 0.75rem;
+    /* 顶部留白 1.5rem：与原高级设置页 .body 顶部一致（图3 标题与标题栏间距） */
+    padding: 1.5rem 2.25rem 0.75rem;
     font-size: 14px;
 }
 
@@ -105,6 +105,13 @@
     font-size: 14px;
     opacity: 0.85;
     white-space: nowrap;
+}
+
+.window-placeholder {
+    padding: 1rem 1.25rem;
+    font-size: 13px;
+    opacity: 0.6;
+    line-height: 1.6;
 }
 
 .window-option {
@@ -163,12 +170,13 @@
     display: flex;
     flex-direction: column;
     padding: 8px 0;
-    border-right: 1px solid $ui-black-transparent;
-    background-color: $ui-black-transparent;
+    border-right: 1px solid rgba(0, 0, 0, 0.4);
+    /* SKYEditor 风格：深灰 #2D2D2D 竖向标签栏（图3） */
+    background-color: #2D2D2D;
     overflow-y: auto;
 }
 
-/* 浅色模式：左侧栏与内容页一致的白底（默认深色模式保持半透明深色） */
+/* 浅色模式：左侧栏与内容页一致的白底（默认深色模式保持深灰） */
 .window-sidebar-light {
     background-color: $ui-modal-background;
 }
@@ -183,13 +191,16 @@
     align-items: center;
     gap: 8px;
     width: 100%;
-    padding: 10px 16px 10px 48px;
+    padding: 8px 16px;
+    margin: 0.25rem 0;
     text-align: left;
     border: none;
+    border-radius: 4px;
     background: transparent;
-    color: $ui-modal-foreground;
+    /* 图3：未选中子项浅灰 #CCCCCC */
+    color: #CCCCCC;
     font: inherit;
-    font-size: .8rem;
+    font-size: 14px;
     cursor: default;
     white-space: nowrap;
 }
@@ -203,20 +214,31 @@
     align-items: center;
     gap: 8px;
     width: 100%;
-    padding: 10px 16px;
+    padding: 8px 16px;
     text-align: left;
     border: none;
+    border-bottom: 1px solid transparent;
     background: transparent;
-    color: $ui-modal-foreground;
+    /* 图2/图3：分类项浅灰文字、无按钮底色、无图标 */
+    color: #CCCCCC;
     font: inherit;
-    font-size: .8rem;
+    font-size: 14px;
     cursor: default;
     white-space: nowrap;
-    font-weight: bold;
+}
+
+/* 图2：展开中的分类项加深字色并带浅灰下划线 */
+.window-category-expanded {
+    color: #FFFFFF;
+    border-bottom-color: #555555;
 }
 
 .window-category:hover {
-    background-color: $badge-border;
+    color: #FFFFFF;
+}
+
+.window-category-label {
+    flex: 1;
 }
 
 .window-category-caret {
@@ -232,24 +254,40 @@
 }
 
 .window-tab:hover {
+    color: #FFFFFF;
     background-color: $badge-border;
 }
 
+/* 选中态：与内容页普通按钮选中样式同步（$badge-background 高亮底），不再用黑底粗体 */
 .window-tab-active {
     background-color: $badge-background;
-    font-weight: bold;
+    color: #FFFFFF;
 }
 
-/* 浅色模式（白底左栏）：hover 最亮、选中次亮（弱于 hover）。
-   深色模式沿用上方默认：hover=$badge-border、选中=$badge-background，
-   二者在本模式下选中本就弱于 hover，无需覆盖。 */
+/* 浅色模式（白底左栏）：文字改深色，hover 浅灰底，选中深底白字 */
+.window-sidebar-light .window-category {
+    color: #575E75;
+    border-bottom-color: #D9D9D9;
+}
+
+.window-sidebar-light .window-category-expanded {
+    color: #1A1A1A;
+    border-bottom-color: #B0B0B0;
+}
+
 .window-sidebar-light .window-category:hover,
 .window-sidebar-light .window-tab:hover {
-    background-color: $badge-background;
+    color: #1A1A1A;
+    background-color: $badge-border;
+}
+
+.window-sidebar-light .window-tab {
+    color: #575E75;
 }
 
 .window-sidebar-light .window-tab-active {
-    background-color: $badge-border;
+    background-color: $badge-background;
+    color: #1A1A1A;
 }
 
 .window-content {
@@ -310,14 +348,16 @@
     z-index: 10;
 }
 
-/* ==== Win11 设置窗口：合并主题页分区标题与分割线 ==== */
+/* ==== Win11 设置窗口：合并主题页分区标题与分割线 ====
+   顶部距离与标题样式对齐原高级设置页（.header: margin .5rem 0 0; 加粗 16px） */
 .window-section-header {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 0.75rem 1.25rem 0.25rem;
+    margin: 0.5rem 0 0;
+    padding: 0 0 0.25rem;
     font-weight: bold;
-    font-size: 14px;
+    font-size: 16px;
 }
 
 .window-section-divider {
@@ -349,22 +389,27 @@
     justify-content: center;
     gap: 6px;
     padding: 12px 8px;
-    /* 图3样式：浅蓝描边 + 四周半透明柔和光晕，其余保持不变 */
-    border: 2px solid #b0c4de;
-    box-shadow: 0 0 14px rgba(176, 196, 222, 0.45);
+    /* 角色造型区同款：正常态 2px 浅灰细框，内部空白 */
+    border: 2px solid $ui-black-transparent;
     border-radius: 8px;
-    background-color: $theme-card-background;
+    background-color: transparent;
     cursor: pointer;
     text-align: center;
     user-select: none;
+    transition: border-color .12s ease, box-shadow .12s ease, background-color .12s ease;
 }
 
+/* 角色造型区同款：悬停态 2px 蓝色实线框 + 白底 */
 .theme-card:hover {
-    background-color: $badge-border;
+    border-color: $looks-secondary;
+    background-color: $theme-card-background;
 }
 
+/* 角色造型区同款：选中态 2px 蓝色实线框 + 白底 + 4px 紧贴光晕环 */
 .theme-card-selected {
-    border-color: $theme-card-selected-border;
+    border-color: $looks-secondary;
+    background-color: $theme-card-background;
+    box-shadow: 0px 0px 0px 4px $looks-transparent;
 }
 
 .theme-card.disabled {
@@ -377,6 +422,11 @@
     align-items: center;
     justify-content: center;
     min-height: 26px;
+}
+
+/* 亮色主题下将白色图标反色为深色，保证在浅色卡片上可见 */
+.theme-card-icon-invert {
+    filter: invert(1);
 }
 
 .theme-card-label {

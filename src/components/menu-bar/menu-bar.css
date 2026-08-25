@@ -111,6 +111,34 @@
     height: 34px;
 }
 
+/* SKY: 音乐播放器按钮——避免复用 feedback-button 的硬编码白底导致深色
+   菜单栏下"只见白块无文字"，改为透明底跟随主题，图标与文字随前景色。
+   原生 button（非 Button 组件）：需显式清除浏览器默认样式。 */
+.music-player-button {
+    background: transparent;
+    color: inherit;
+    border: none;
+    height: 34px;
+    padding: 0 12px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+    cursor: pointer;
+    white-space: nowrap;
+}
+.music-player-button:hover {
+    background: var(--ui-black-transparent, rgba(0, 0, 0, 0.18));
+}
+.music-player-button svg {
+    display: block;
+    flex-shrink: 0;
+}
+
 .divider {
     height: 34px;
 }
@@ -237,6 +265,12 @@
 /* SKYEditor 主题：顶栏整体水平居中，仅调整对齐/位置，不改样式 */
 .sky-editor-centered {
     justify-content: center;
+}
+
+/* SKYEditor 主题居中布局时，右侧按钮组（保存到电脑等）仍固定在顶栏右侧，
+   与经典主题行为一致，不随菜单一起居中 */
+.sky-editor-centered .account-info-group {
+    margin-left: auto;
 }
 
 .sky-editor-centered .main-menu {

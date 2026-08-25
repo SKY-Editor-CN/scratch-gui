@@ -3,7 +3,7 @@
 const THEME_PRESETS = [
     {
         id: 'turbowarp',
-        name: 'TurboWarp',
+        name: '经典',
         iconColor: '#ff4c4c'
     },
     {

@@ -1,0 +1,26 @@
+{
+  "name": "sky-editor-collab-backend-prototype",
+  "version": "0.1.0",
+  "private": true,
+  "description": "SKY Editor 远程协作（方案A）后台原型：轻量信令服务（ws）+ Yjs CRDT 同步核心 + 自动化测试。独立于 scratch-gui 主项目，便于日后演进为方案B（SKY-Collab-Server）。",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "node test/sync-test.js"
+  },
+  "keywords": [
+    "sky-editor",
+    "collaboration",
+    "crdt",
+    "yjs",
+    "websocket"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=16"
+  },
+  "dependencies": {
+    "ws": "^8.21.3",
+    "yjs": "^13.6.32"
+  }
+}

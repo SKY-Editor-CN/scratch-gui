@@ -15,7 +15,6 @@ import CommunityButton from './community-button.jsx';
 import ShareButton from './share-button.jsx';
 import {ComingSoonTooltip} from '../coming-soon/coming-soon.jsx';
 import Divider from '../divider/divider.jsx';
-import SaveStatus from './save-status.jsx';
 import ProjectWatcher from '../../containers/project-watcher.jsx';
 import MenuBarMenu from './menu-bar-menu.jsx';
 import MenuLabel from './tw-menu-label.jsx';
@@ -87,9 +86,8 @@ import collectMetadata from '../../lib/collect-metadata';
 
 import styles from './menu-bar.css';
 
-import helpIcon from '../../lib/assets/icon--tutorials.svg';
-import mystuffIcon from './icon--mystuff.png';
-import profileIcon from './icon--profile.png';
+import {MusicIcon} from '../music-player/icons.jsx';
+
 import remixIcon from './icon--remix.svg';
 import dropdownCaret from './dropdown-caret.svg';
 import aboutIcon from './icon--about.svg';
@@ -109,14 +107,6 @@ import sharedMessages from '../../lib/shared-messages';
 import SeeInsideButton from './tw-see-inside.jsx';
 import {notScratchDesktop} from '../../lib/isScratchDesktop.js';
 import {APP_NAME} from '../../lib/brand.js';
-
-const ariaMessages = defineMessages({
-    tutorials: {
-        id: 'gui.menuBar.tutorialsLibrary',
-        defaultMessage: 'Tutorials',
-        description: 'accessibility text for the tutorials button'
-    }
-});
 
 const twMessages = defineMessages({
     compileError: {
@@ -1082,6 +1072,23 @@ class MenuBar extends React.Component {
                             </Button>
                         </a>
                     </div>
+                    {/* SKY: 音乐播放器入口按钮（点击 dispatch openMusicPlayer 打开 React 播放器窗口）
+                        用原生 button 而非 Button 组件：Button 会多包一层 .content div，
+                        CSS Modules 下无法跨模块命中，导致图标与文字竖排。 */}
+                    <div className={styles.menuBarItem}>
+                        <button
+                            className={styles.musicPlayerButton}
+                            onClick={this.props.openMusicPlayer}
+                            id="sky.musicPlayerButton"
+                        >
+                            <MusicIcon size={16} />
+                            <FormattedMessage
+                                defaultMessage="音乐"
+                                description="Button to open the music player in the menu bar"
+                                id="sky.musicPlayerButton"
+                            />
+                        </button>
+                    </div>
                 </div>
 
                 <div className={styles.accountInfoGroup}>
@@ -1184,6 +1191,7 @@ MenuBar.propTypes = {
     ]),
     onClickAccount: PropTypes.func,
     onClickAddonSettings: PropTypes.func,
+    openMusicPlayer: PropTypes.func,
     onClickDesktopSettings: PropTypes.func,
     onClickPackager: PropTypes.func,
     onClickRestorePoints: PropTypes.func,

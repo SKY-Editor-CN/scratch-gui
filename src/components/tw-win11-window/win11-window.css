@@ -185,44 +185,51 @@
     cursor: nwse-resize;
 }
 
+/* 右键菜单样式（TurboWarp 原始浅色为默认值，SKYEditor 样式通过 CSS 变量
+   --sky-ctx-menu-* 覆盖，由「设置 -> SKYEditor 外观 -> 右键菜单样式」下发，
+   同时作用于设置窗口与调试器插件的仿 Win11 窗口右键菜单） */
 .win11-context-menu {
     position: fixed;
-    min-width: 130px;
-    padding: 5px 0;
-    margin: 2px 0 0;
-    font-size: 0.85rem;
+    min-width: var(--sky-ctx-menu-min-width, 130px);
+    padding: var(--sky-ctx-menu-padding, 5px 0);
+    margin: var(--sky-ctx-menu-margin, 2px 0 0);
+    font-size: var(--sky-ctx-menu-font-size, 0.85rem);
     text-align: left;
-    background-color: $ui-white;
-    border: 1px solid $ui-black-transparent;
-    border-radius: 4px;
-    box-shadow: 0 0 5px 1px $shadow;
+    background-color: var(--sky-ctx-menu-bg, $ui-white);
+    border: 1px solid var(--sky-ctx-menu-border, $ui-black-transparent);
+    border-radius: var(--sky-ctx-menu-radius, 4px);
+    box-shadow: var(--sky-ctx-menu-shadow, 0 0 5px 1px $shadow);
+    color: var(--sky-ctx-menu-fg, inherit);
+    user-select: none;
     pointer-events: auto;
-    z-index: 530;
+    z-index: var(--sky-ctx-menu-z-index, 530);
 }
 
 .win11-menu-item {
-    padding: 8px 12px;
+    color: var(--sky-ctx-menu-fg, inherit);
+    padding: var(--sky-ctx-menu-item-padding, 8px 12px);
+    border-radius: var(--sky-ctx-menu-item-radius, 0);
     white-space: nowrap;
     cursor: pointer;
-    transition: 0.1s ease;
+    transition: var(--sky-ctx-menu-item-transition, 0.1s ease);
 }
 
 .win11-menu-item:hover {
-    background: $looks-secondary;
-    color: white;
+    background: var(--sky-ctx-menu-hover-bg, $looks-secondary);
+    color: var(--sky-ctx-menu-hover-fg, white);
 }
 
 .win11-menu-item-divider {
     margin: 4px 0;
-    border-top: 1px solid $ui-black-transparent;
+    border-top: 1px solid var(--sky-ctx-menu-divider, $ui-black-transparent);
 }
 
 .win11-menu-item-disabled {
-    opacity: 0.5;
+    opacity: var(--sky-ctx-menu-disabled-opacity, 0.5);
     cursor: default;
 }
 
 .win11-menu-item-disabled:hover {
-    background: transparent;
-    color: inherit;
+    background: var(--sky-ctx-menu-disabled-hover-bg, transparent);
+    color: var(--sky-ctx-menu-disabled-hover-fg, inherit);
 }

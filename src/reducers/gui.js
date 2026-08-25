@@ -25,6 +25,8 @@ import themeReducer, {themeInitialState} from './theme';
 import uiThemeReducer, {uiThemeInitialState} from './ui-theme';
 import menuBarPositionReducer, {menuBarPositionInitialState} from './menu-bar-position';
 import tabLayoutReducer, {tabLayoutInitialState} from './tab-layout';
+import contextMenuStyleReducer, {contextMenuStyleInitialState} from './context-menu-style';
+import musicPlayerReducer, {musicPlayerInitialState} from './music-player';
 import timeoutReducer, {timeoutInitialState} from './timeout';
 import timeTravelReducer, {timeTravelInitialState} from './time-travel';
 import toolboxReducer, {toolboxInitialState} from './toolbox';
@@ -67,6 +69,8 @@ const guiInitialState = {
     uiTheme: uiThemeInitialState,
     menuBarPosition: menuBarPositionInitialState,
     tabLayout: tabLayoutInitialState,
+    contextMenuStyle: contextMenuStyleInitialState,
+    musicPlayer: musicPlayerInitialState,
     timeout: timeoutInitialState,
     timeTravel: timeTravelInitialState,
     toolbox: toolboxInitialState,
@@ -176,6 +180,8 @@ const guiReducer = combineReducers({
     uiTheme: uiThemeReducer,
     menuBarPosition: menuBarPositionReducer,
     tabLayout: tabLayoutReducer,
+    contextMenuStyle: contextMenuStyleReducer,
+    musicPlayer: musicPlayerReducer,
     timeout: timeoutReducer,
     timeTravel: timeTravelReducer,
     toolbox: toolboxReducer,

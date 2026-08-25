@@ -17,6 +17,7 @@ import StageWrapper from '../../containers/stage-wrapper.jsx';
 import Loader from '../loader/loader.jsx';
 import Box from '../box/box.jsx';
 import MenuBar from '../menu-bar/menu-bar.jsx';
+import MusicPlayerWindow from '../music-player/music-player-window.jsx';
 import CostumeLibrary from '../../containers/costume-library.jsx';
 import BackdropLibrary from '../../containers/backdrop-library.jsx';
 import Watermark from '../../containers/watermark.jsx';
@@ -49,6 +50,7 @@ import addExtensionIcon from './icon--extensions.svg';
 import codeIcon from '!../../lib/tw-recolor/build!./icon--code.svg';
 import costumesIcon from '!../../lib/tw-recolor/build!./icon--costumes.svg';
 import soundsIcon from '!../../lib/tw-recolor/build!./icon--sounds.svg';
+import searchIcon from '../action-menu/icon--search.svg';
 
 const messages = defineMessages({
     addExtension: {
@@ -188,6 +190,20 @@ const GUIComponent = props => {
         FIXED_WIDTH +
         Math.max(0, customStageSize.width - FIXED_WIDTH)
     );
+
+    // SKYEditor 竖向侧边栏：搜索标签。点击切回代码面板并聚焦搜索输入框。
+    const handleSkySidebarSearch = () => {
+        if (typeof onActivateTab === 'function') {
+            onActivateTab(0);
+        }
+        setTimeout(() => {
+            const input = document.querySelector(
+                '.find-bar input, .sa-find-bar input, .blocks-search-input input, [data-search-input]'
+            );
+            if (input) input.focus();
+        }, 120);
+    };
+
     return (<MediaQuery minWidth={unconstrainedWidth}>{isUnconstrained => {
         const stageSize = resolveStageSize(stageSizeMode, isUnconstrained);
 
@@ -393,6 +409,20 @@ const GUIComponent = props => {
                                             id="gui.gui.soundsTab"
                                         />
                                     </Tab>
+                                    {(uiTheme === 'sky-editor' && tabLayout === 'vertical') && (
+                                        <button
+                                            type="button"
+                                            className={styles.skySidebarSearch}
+                                            title={intl.formatMessage({id: 'gui.gui.searchTab', defaultMessage: '搜索'})}
+                                            onClick={handleSkySidebarSearch}
+                                        >
+                                            <img
+                                                draggable={false}
+                                                src={searchIcon}
+                                                alt=""
+                                            />
+                                        </button>
+                                    )}
                                 </TabList>
                                 <TabPanel className={tabClassNames.tabPanel}>
                                     <Box className={styles.blocksWrapper}>
@@ -459,6 +489,7 @@ const GUIComponent = props => {
                     </Box>
                 </Box>
                 <DragLayer />
+                <MusicPlayerWindow />
             </Box>
         );
     }}</MediaQuery>);

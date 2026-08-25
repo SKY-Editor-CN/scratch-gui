@@ -38,6 +38,7 @@ class TWUnknownPlatformModal extends React.Component {
                 onClose={this.handleClose}
                 platform={this.props.platform}
                 canClose={this.state.canClose}
+                uiTheme={this.props.uiTheme}
             />
         );
     }
@@ -55,7 +56,8 @@ TWUnknownPlatformModal.propTypes = {
 const mapStateToProps = state => ({
     vm: state.scratchGui.vm,
     callback: state.scratchGui.tw.platformMismatchDetails.callback,
-    platform: state.scratchGui.tw.platformMismatchDetails.platform
+    platform: state.scratchGui.tw.platformMismatchDetails.platform,
+    uiTheme: state.scratchGui.uiTheme
 });
 
 const mapDispatchToProps = dispatch => ({

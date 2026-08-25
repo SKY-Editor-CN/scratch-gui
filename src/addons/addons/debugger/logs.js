@@ -4,12 +4,12 @@ import LogView from "./log-view.js";
 export default async function createLogsTab({ debug, addon, console, msg }) {
   const vm = addon.tab.traps.vm;
 
-  const tab = debug.createHeaderTab({
+    const tab = debug.createHeaderTab({
     text: msg("tab-logs"),
     icon: addon.self.getResource("/icons/logs.svg") /* rewritten by pull.js */,
   });
 
-  const logView = new LogView();
+    const logView = new LogView();
   logView.placeholderElement.textContent = msg("no-logs");
 
   const getInputOfBlock = (targetId, blockId) => {
@@ -84,15 +84,10 @@ export default async function createLogsTab({ debug, addon, console, msg }) {
     }
   };
 
-  const exportButton = debug.createHeaderButton({
-    text: msg("export"),
-    icon: addon.self.getResource("/icons/download-white.svg") /* rewritten by pull.js */,
-    description: msg("export-desc"),
-  });
   const downloadText = (filename, text) => {
     downloadBlob(filename, new Blob([text], { type: "text/plain" }));
   };
-  exportButton.element.addEventListener("click", async (e) => {
+  const exportLogs = async (e) => {
     const defaultFormat = "{sprite}: {content} ({type})";
     const exportFormat = e.shiftKey
       ? await addon.tab.prompt(msg("export"), msg("enter-format"), defaultFormat, { useEditorClasses: true })
@@ -114,14 +109,20 @@ export default async function createLogsTab({ debug, addon, console, msg }) {
       )
       .join("");
     downloadText("logs.txt", file);
-  });
+  };
 
-  const trashButton = debug.createHeaderButton({
-    text: msg("clear"),
-    icon: addon.self.getResource("/icons/delete.svg") /* rewritten by pull.js */,
-  });
-  trashButton.element.addEventListener("click", () => {
-    clearLogs();
+  const clearLogs = () => {
+    logView.clear();
+  };
+
+  // 将"导出"与"清除"两个按钮合并为单个"更多"下拉菜单，避免标题栏按钮过多挤压布局。
+    const moreButton = debug.createHeaderDropdown({
+    text: "更多",
+    icon: addon.self.getResource("/icons/more.svg") /* rewritten by pull.js */,
+    items: [
+      { text: msg("export"), onClick: (e) => exportLogs(e) },
+      { text: msg("clear"), onClick: () => clearLogs() },
+    ],
   });
 
   const areLogsEqual = (a, b) =>
@@ -167,10 +168,6 @@ export default async function createLogsTab({ debug, addon, console, msg }) {
     }
   };
 
-  const clearLogs = () => {
-    logView.clear();
-  };
-
   const show = () => {
     logView.show();
     debug.setHasUnreadMessage(false);
@@ -182,7 +179,7 @@ export default async function createLogsTab({ debug, addon, console, msg }) {
   return {
     tab,
     content: logView.outerElement,
-    buttons: [exportButton, trashButton],
+    buttons: [moreButton],
     show,
     hide,
     addLog,

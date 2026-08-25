@@ -4,6 +4,7 @@ import createThreadsTab from "./threads.js";
 import createPerformanceTab from "./performance.js";
 import Utils from "../find-bar/blockly/Utils.js";
 import addSmallStageClass from "../../libraries/common/cs/small-stage.js";
+import createSkyWin11Window from "../../libraries/common/sky-win11-window.js";
 
 const removeAllChildren = (element) => {
   while (element.firstChild) {
@@ -97,7 +98,7 @@ export default async function ({ addon, console, msg }) {
   });
   // SKYEditor 统一窗口：标题栏复刻 Win11Window 形式（图标+文字 在左，
   // 后面空一段距离再放 导出/清除/关闭 等按钮）。
-  // 标题元素始终创建，是否显示由 updateSkyMode 根据当前 uiTheme 动态控制，
+  // 标题元素始终创建，是否显示由 syncSkyChrome 根据当前 uiTheme 动态控制，
   // 保证切换主题后即时生效，不会把 SKYEditor 样式带到 TurboWarp 等其他主题。
   const skyTitleElement = Object.assign(document.createElement("div"), {
     className: "sa-debugger-sky-title",
@@ -116,17 +117,6 @@ export default async function ({ addon, console, msg }) {
   }
   interfaceHeader.append(skyTitleElement);
 
-  // 主题变化时实时切换 SKYEditor 窗口样式（sky-editor 专属类 + 标题栏显隐），
-  // 非 sky-editor 主题（如 TurboWarp）下始终恢复为调试器默认样式。
-  const updateSkyMode = () => {
-    const isSky =
-      addon.tab.redux.state.scratchGui &&
-      addon.tab.redux.state.scratchGui.uiTheme === "sky-editor";
-    interfaceContainer.classList.toggle("sa-debugger-sky-window", isSky);
-    skyTitleElement.style.display = isSky ? "" : "none";
-  };
-  addon.tab.redux.addEventListener("statechanged", updateSkyMode);
-  updateSkyMode();
   const tabListElement = Object.assign(document.createElement("ul"), {
     className: "sa-debugger-tabs",
   });
@@ -195,9 +185,10 @@ export default async function ({ addon, console, msg }) {
     moveInterface(e.clientX, e.clientY);
   };
   window.addEventListener("resize", () => {
-    moveInterface(lastX, lastY);
+    if (!isSkyWindow()) {
+      moveInterface(lastX, lastY);
+    }
   });
-  interfaceHeader.addEventListener("mousedown", handleStartDrag);
 
   interfaceHeader.append(tabListElement, buttonContainerElement);
   interfaceContainer.append(interfaceHeader, compilerWarning, tabContentContainer);
@@ -225,6 +216,77 @@ export default async function ({ addon, console, msg }) {
       image: imageElement,
       text: textElement,
     };
+  };
+
+  // "更多"下拉按钮：返回 { element, image, text }（与 createHeaderButton 同构），
+  // 点击弹出 fixed 定位下拉浮层（.sa-debugger-dropdown），点击项执行 onClick 并关闭；
+  // 点击外部 / 再次点击按钮 / redux 状态变化时自动关闭。
+  const createHeaderDropdown = ({ text, icon, items }) => {
+    const button = Object.assign(document.createElement("div"), {
+      className:
+        addon.tab.scratchClass("card_shrink-expand-button") + " sa-debugger-dropdown-button",
+      draggable: false,
+    });
+    const imageElement = Object.assign(document.createElement("img"), {
+      src: icon,
+      draggable: false,
+    });
+    const textElement = Object.assign(document.createElement("span"), {
+      textContent: text,
+    });
+    button.appendChild(imageElement);
+    button.appendChild(textElement);
+
+    const menu = Object.assign(document.createElement("div"), {
+      className: "sa-debugger-dropdown",
+    });
+    menu.style.display = "none";
+    for (const item of items) {
+      const itemElement = Object.assign(document.createElement("div"), {
+        className: "sa-debugger-dropdown-item",
+        textContent: item.text,
+      });
+      itemElement.addEventListener("click", (e) => {
+        e.stopPropagation();
+        closeMenu();
+        item.onClick(e);
+      });
+      menu.appendChild(itemElement);
+    }
+    document.body.appendChild(menu);
+
+    const closeMenu = () => {
+      menu.style.display = "none";
+    };
+    const positionMenu = () => {
+      const rect = button.getBoundingClientRect();
+      menu.style.left = Math.max(0, Math.min(rect.left, window.innerWidth - 180)) + "px";
+      menu.style.top = rect.bottom + 4 + "px";
+    };
+    const toggleMenu = (e) => {
+      e.stopPropagation();
+      if (menu.style.display === "block") {
+        closeMenu();
+        return;
+      }
+      positionMenu();
+      menu.style.display = "block";
+    };
+    button.addEventListener("click", toggleMenu);
+    // 点击浮层/按钮以外的任意处关闭
+    document.addEventListener("mousedown", (e) => {
+      if (
+        menu.style.display === "block" &&
+        !menu.contains(e.target) &&
+        !button.contains(e.target)
+      ) {
+        closeMenu();
+      }
+    });
+    // 编辑器状态变化（切 tab / 窗口隐藏 / 主题切换）时关闭浮层，避免残留
+    addon.tab.redux.addEventListener("statechanged", closeMenu);
+
+    return { element: button, image: imageElement, text: textElement };
   };
 
   const createHeaderTab = ({ text, icon }) => {
@@ -263,62 +325,38 @@ export default async function ({ addon, console, msg }) {
   });
   closeButton.element.addEventListener("click", () => setInterfaceVisible(false));
 
-  // ===== SKYEditor 窗口控件：最小化/最大化/关闭（仅 sky-editor 主题显示）=====
-  const skyWindowControls = Object.assign(document.createElement("div"), {
-    className: "sa-debugger-sky-controls",
-    style: "display: none",
+  // ===== SKYEditor 仿 Win11 窗口（仅 sky-editor 主题启用）=====
+  // 窗口交互（标题栏拖动 / 双击最大化 / 右键系统菜单 / 最小化最大化关闭 / 8 向 resize）
+  // 完全复用共享引擎 createSkyWin11Window（逻辑提炼自 components/tw-win11-window/win11-window.jsx），
+  // 不再保留插件自有的独立窗口控件与拖动实现。非 sky-editor 主题（如 TurboWarp）下引擎禁用，
+  // 恢复调试器默认样式与全局标题栏拖动（handleStartDrag）。
+  const skyWindow = createSkyWin11Window(interfaceContainer, {
+    headerElement: interfaceHeader,
+    onClose: () => setInterfaceVisible(false),
+    defaultWidth: 720,
+    defaultHeight: 512,
   });
-  const createWindowControl = (innerHTML, title, onClick) => {
-    const btn = Object.assign(document.createElement("button"), {
-      type: "button",
-      title,
-      className: "sa-debugger-sky-control",
-      innerHTML,
-    });
-    btn.addEventListener("click", onClick);
-    return btn;
-  };
-  const minimizeControl = createWindowControl(
-    '<svg viewBox="0 0 10 10" width="10" height="10" aria-hidden="true"><path d="M0 5h10" stroke="currentColor" stroke-width="1.1"/></svg>',
-    "最小化",
-    () => {
-      interfaceContainer.classList.remove("sa-debugger-sky-maximized");
-      interfaceContainer.classList.toggle("sa-debugger-sky-minimized");
-    }
-  );
-  const maximizeControl = createWindowControl(
-    '<svg viewBox="0 0 10 10" width="10" height="10" aria-hidden="true"><rect x="0.5" y="0.5" width="9" height="9" fill="none" stroke="currentColor" stroke-width="1"/></svg>',
-    "最大化",
-    () => {
-      interfaceContainer.classList.remove("sa-debugger-sky-minimized");
-      interfaceContainer.classList.toggle("sa-debugger-sky-maximized");
-    }
-  );
-  const closeControl = createWindowControl(
-    '<svg viewBox="0 0 10 10" width="10" height="10" aria-hidden="true"><path d="M0 0l10 10M10 0L0 10" stroke="currentColor" stroke-width="1"/></svg>',
-    "关闭",
-    () => setInterfaceVisible(false)
-  );
-  skyWindowControls.append(minimizeControl, maximizeControl, closeControl);
-  interfaceHeader.append(skyWindowControls);
-
-  // 双击标题栏切换最大化（仅 sky-editor 模式生效）
-  interfaceHeader.addEventListener("dblclick", () => {
-    if (!interfaceContainer.classList.contains("sa-debugger-sky-window")) return;
-    interfaceContainer.classList.remove("sa-debugger-sky-minimized");
-    interfaceContainer.classList.toggle("sa-debugger-sky-maximized");
-  });
-
-  // 主题变化时同步窗口控件显隐；sky 模式下隐藏原文字"关闭"按钮，改用 ✕ 图标控件
-  const refreshWindowControls = (isSky) => {
-    skyWindowControls.style.display = isSky ? "flex" : "none";
-    closeButton.element.style.display = isSky ? "none" : "";
-  };
-  addon.tab.redux.addEventListener("statechanged", refreshWindowControls);
-  refreshWindowControls(
+  const isSkyWindow = () =>
     addon.tab.redux.state.scratchGui &&
-      addon.tab.redux.state.scratchGui.uiTheme === "sky-editor"
-  );
+    addon.tab.redux.state.scratchGui.uiTheme === "sky-editor";
+  // 主题切换时同步 SKYEditor 窗口状态：窗口类/标题栏/引擎启停/文字关闭按钮显隐/全局拖动接管
+  let skyDragBound = false;
+  const syncSkyChrome = () => {
+    const isSky = isSkyWindow();
+    interfaceContainer.classList.toggle("sa-debugger-sky-window", isSky);
+    skyTitleElement.style.display = isSky ? "" : "none";
+    closeButton.element.style.display = isSky ? "none" : "";
+    skyWindow.setEnabled(isSky);
+    if (isSky && skyDragBound) {
+      interfaceHeader.removeEventListener("mousedown", handleStartDrag);
+      skyDragBound = false;
+    } else if (!isSky && !skyDragBound) {
+      interfaceHeader.addEventListener("mousedown", handleStartDrag);
+      skyDragBound = true;
+    }
+  };
+  addon.tab.redux.addEventListener("statechanged", syncSkyChrome);
+  syncSkyChrome();
 
   const originalStep = vm.runtime._step;
   const afterStepCallbacks = [];
@@ -594,6 +632,7 @@ export default async function ({ addon, console, msg }) {
   const api = {
     debug: {
       createHeaderButton,
+      createHeaderDropdown,
       createHeaderTab,
       setHasUnreadMessage,
       addAfterStepCallback,

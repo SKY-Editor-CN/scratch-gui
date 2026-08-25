@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import bindAll from 'lodash.bindall';
 import React from 'react';
 import SB3Downloader from './sb3-downloader.jsx';
+import {openMusicPlayer, closeMusicPlayer} from '../reducers/music-player';
 
 const MenuBarHOC = function (WrappedComponent) {
     class MenuBarContainer extends React.PureComponent {
@@ -60,9 +61,13 @@ const MenuBarHOC = function (WrappedComponent) {
         confirmWithMessage: message => (confirm(message)) // eslint-disable-line no-alert
     };
     const mapStateToProps = state => ({
-        projectChanged: state.scratchGui.projectChanged
+        projectChanged: state.scratchGui.projectChanged,
+        musicPlayer: state.scratchGui.musicPlayer
     });
-    const mapDispatchToProps = () => ({});
+    const mapDispatchToProps = dispatch => ({
+        openMusicPlayer: () => dispatch(openMusicPlayer()),
+        closeMusicPlayer: () => dispatch(closeMusicPlayer())
+    });
     // Allow incoming props to override redux-provided props. Used to mock in tests.
     const mergeProps = (stateProps, dispatchProps, ownProps) => Object.assign(
         {}, stateProps, dispatchProps, ownProps

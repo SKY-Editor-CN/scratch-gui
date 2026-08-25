@@ -6,6 +6,7 @@ import {defineMessages, injectIntl, intlShape} from 'react-intl';
 
 import LibraryItem from '../../containers/library-item.jsx';
 import Modal from '../../containers/modal.jsx';
+import Win11Window from '../tw-win11-window/win11-window.jsx';
 import Divider from '../divider/divider.jsx';
 import Filter from '../filter/filter.jsx';
 import TagButton from '../../containers/tag-button.jsx';
@@ -254,13 +255,8 @@ class LibraryComponent extends React.Component {
     }
     render () {
         const filteredData = this.state.canDisplay && this.props.data && this.getFilteredData();
-        return (
-            <Modal
-                fullScreen
-                contentLabel={this.props.title}
-                id={this.props.id}
-                onRequestClose={this.handleClose}
-            >
+        const libraryContent = (
+            <React.Fragment>
                 {(this.props.filterable || this.props.tags) && (
                     <div className={styles.filterBar}>
                         {this.props.filterable && (
@@ -307,6 +303,11 @@ class LibraryComponent extends React.Component {
                     {filteredData && this.getFilteredData().map((dataItem, index) => (
                         dataItem === '---' ? (
                             <Separator key={index} />
+                        ) : dataItem.type === 'sectionTitle' ? (
+                            <Separator
+                                key={dataItem.key || index}
+                                title={dataItem.title}
+                            />
                         ) : (
                             <LibraryItem
                                 bluetoothRequired={dataItem.bluetoothRequired}
@@ -360,6 +361,34 @@ class LibraryComponent extends React.Component {
                         </div>
                     )}
                 </div>
+            </React.Fragment>
+        );
+
+        // SKY Editor：扩展库在 sky-editor 主题下以仿 Win11 窗口呈现（铁律：仅该主题生效）
+        if (this.props.windowed) {
+            return (
+                <Win11Window
+                    title={this.props.title}
+                    onClose={this.handleClose}
+                    icon={this.props.icon}
+                    defaultWidth={1024}
+                    defaultHeight={680}
+                >
+                    <div className={styles.skyWindowBody}>
+                        {libraryContent}
+                    </div>
+                </Win11Window>
+            );
+        }
+
+        return (
+            <Modal
+                fullScreen
+                contentLabel={this.props.title}
+                id={this.props.id}
+                onRequestClose={this.handleClose}
+            >
+                {libraryContent}
             </Modal>
         );
     }
@@ -385,6 +414,7 @@ LibraryComponent.propTypes = {
         PropTypes.instanceOf(Promise)
     ]),
     filterable: PropTypes.bool,
+    icon: PropTypes.string,
     id: PropTypes.string.isRequired,
     persistableKey: PropTypes.string,
     intl: intlShape.isRequired,
@@ -396,13 +426,15 @@ LibraryComponent.propTypes = {
     showPlayButton: PropTypes.bool,
     tags: PropTypes.arrayOf(PropTypes.shape(TagButton.propTypes)),
     title: PropTypes.string.isRequired,
-    removedTrademarks: PropTypes.bool
+    removedTrademarks: PropTypes.bool,
+    windowed: PropTypes.bool
 };
 
 LibraryComponent.defaultProps = {
     filterable: true,
     persistableKey: 'name',
-    showPlayButton: false
+    showPlayButton: false,
+    windowed: false
 };
 
 export default injectIntl(LibraryComponent);

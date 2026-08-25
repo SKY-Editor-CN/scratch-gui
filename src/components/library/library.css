@@ -68,3 +68,19 @@
     align-items: center;
     justify-content: center;
 }
+
+/* SKY Editor：扩展库以仿 Win11 窗口呈现时的内容布局（仅 windowed 模式生效） */
+.sky-window-body {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+}
+
+.sky-window-body .library-scroll-grid,
+.sky-window-body .library-scroll-grid.withFilterBar {
+    height: auto;
+    flex: 1;
+    min-height: 0;
+}

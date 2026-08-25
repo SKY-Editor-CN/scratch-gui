@@ -14,6 +14,7 @@ import {defaultStageSize} from '../../reducers/custom-stage-size';
 import check from './check.svg';
 import lightModeIcon from './tw-sun.svg';
 import darkModeIcon from './tw-moon.svg';
+import themePaletteIcon from './tw-theme-palette.svg';
 import threeIcon from './tw-blocks-three.svg';
 import highContrastIcon from './tw-blocks-high-contrast.svg';
 import darkIcon from './tw-blocks-dark.svg';
@@ -24,6 +25,13 @@ import desktopIcon from './tw-desktop-icon.svg';
 import settingsIcon from './icon--settings.svg';
 import languageIcon from '../language-selector/language-icon.svg';
 import advancedIcon from './tw-advanced.svg';
+import layoutIcon from './tw-layout.svg';
+import wallpaperIcon from './tw-wallpaper.svg';
+import fontIcon from './tw-font.svg';
+import loadingIcon from './tw-loading.svg';
+import menuBarIcon from './tw-menu-bar.svg';
+import tabsIcon from './tw-tabs.svg';
+import contextMenuIcon from './tw-context-menu.svg';
 
 import {
     GUI_DARK,
@@ -41,10 +49,12 @@ import {setTheme} from '../../reducers/theme.js';
 import {setUiTheme} from '../../reducers/ui-theme.js';
 import {setMenuBarPosition} from '../../reducers/menu-bar-position.js';
 import {setTabLayout} from '../../reducers/tab-layout.js';
+import {setContextMenuStyle} from '../../reducers/context-menu-style.js';
 import {persistTheme} from '../../lib/themes/themePersistance.js';
 import {persistUiTheme} from '../../lib/themes/uiThemePersistance.js';
 import {persistMenuBarPosition} from '../../lib/menuBarPositionPersistance.js';
 import {persistTabLayout} from '../../lib/tabLayoutPersistance.js';
+import {persistContextMenuStyle, applyContextMenuStyle} from '../../lib/contextMenuStylePersistance.js';
 
 import styles from './settings-menu.css';
 
@@ -84,15 +94,60 @@ const messages = defineMessages({
         description: 'Tab label for SKYEditor appearance settings in the combined settings window',
         id: 'tw.settingsWindow.skyAppearanceTab'
     },
+    layoutTab: {
+        defaultMessage: '布局',
+        description: 'Tab label for layout settings in the combined settings window',
+        id: 'tw.settingsWindow.layoutTab'
+    },
+    wallpaperTab: {
+        defaultMessage: '壁纸',
+        description: 'Tab label for wallpaper settings in the combined settings window',
+        id: 'tw.settingsWindow.wallpaperTab'
+    },
+    fontTab: {
+        defaultMessage: '字体',
+        description: 'Tab label for font settings in the combined settings window',
+        id: 'tw.settingsWindow.fontTab'
+    },
+    loadingTab: {
+        defaultMessage: '加载动画',
+        description: 'Tab label for loading animation settings in the combined settings window',
+        id: 'tw.settingsWindow.loadingTab'
+    },
+    wallpaperPlaceholder: {
+        defaultMessage: '壁纸设置功能开发中，敬请期待',
+        description: 'Placeholder text shown in the wallpaper settings tab',
+        id: 'tw.settingsWindow.wallpaperPlaceholder'
+    },
+    fontPlaceholder: {
+        defaultMessage: '字体设置功能开发中，敬请期待',
+        description: 'Placeholder text shown in the font settings tab',
+        id: 'tw.settingsWindow.fontPlaceholder'
+    },
+    loadingPlaceholder: {
+        defaultMessage: '加载动画设置功能开发中，敬请期待',
+        description: 'Placeholder text shown in the loading animation settings tab',
+        id: 'tw.settingsWindow.loadingPlaceholder'
+    },
+    skyAppearancePlaceholder: {
+        defaultMessage: 'SKYEditor 外观设置功能开发中，敬请期待',
+        description: 'Placeholder text shown in the SKYEditor appearance settings tab',
+        id: 'tw.settingsWindow.skyAppearancePlaceholder'
+    },
     menuBarPositionLabel: {
         defaultMessage: '菜单栏位置',
         description: 'Label for the menu bar position setting in the combined settings window',
         id: 'tw.settingsWindow.menuBarPosition'
     },
     tabLayoutLabel: {
-        defaultMessage: '标签样式',
+        defaultMessage: '标签栏布局',
         description: 'Label for the tab layout setting in the combined settings window',
         id: 'tw.settingsWindow.tabLayout'
+    },
+    contextMenuStyleLabel: {
+        defaultMessage: '右键菜单样式',
+        description: 'Label for the context menu style setting in the combined settings window',
+        id: 'tw.settingsWindow.contextMenuStyle'
     },
     advancedTab: {
         defaultMessage: 'General',
@@ -136,8 +191,12 @@ const SETTINGS_CATEGORIES = [
         message: messages.appearanceCategory,
         icon: threeIcon,
         items: [
-            {id: 'sky-appearance', message: messages.skyAppearanceTab, icon: settingsIcon},
-            {id: 'theme', message: messages.themeTab, icon: lightModeIcon}
+            {id: 'theme', message: messages.themeTab, icon: themePaletteIcon},
+            {id: 'layout', message: messages.layoutTab, icon: layoutIcon},
+            {id: 'wallpaper', message: messages.wallpaperTab, icon: wallpaperIcon},
+            {id: 'font', message: messages.fontTab, icon: fontIcon},
+            {id: 'loading', message: messages.loadingTab, icon: loadingIcon},
+            {id: 'sky-appearance', message: messages.skyAppearanceTab, icon: settingsIcon}
         ]
     },
     {
@@ -209,6 +268,19 @@ const tabLayoutOptions = defineMessages({
         defaultMessage: '横向',
         description: 'Option to display the editor tabs horizontally',
         id: 'tw.settingsWindow.tabLayoutHorizontal'
+    }
+});
+
+const contextMenuStyleOptions = defineMessages({
+    tw: {
+        defaultMessage: '经典样式',
+        description: 'Option to use the original classic context menu style',
+        id: 'tw.settingsWindow.contextMenuStyleTw'
+    },
+    se: {
+        defaultMessage: 'SKYEditor样式',
+        description: 'Option to use the SKYEditor context menu style',
+        id: 'tw.settingsWindow.contextMenuStyleSe'
     }
 });
 
@@ -290,6 +362,40 @@ ThemeCard.propTypes = {
     selected: PropTypes.bool
 };
 
+const PlaceholderTab = ({
+    title,
+    description,
+    icon
+}) => (
+    <div className={styles.windowSettings}>
+        <div className={styles.windowSectionHeader}>
+            <img
+                className={styles.windowTabIcon}
+                src={icon}
+                draggable={false}
+                width={16}
+                height={16}
+                alt=""
+            />
+            <FormattedMessage {...title} />
+            <div className={styles.windowSectionDivider} />
+        </div>
+        <div className={styles.windowPlaceholder}>
+            <FormattedMessage {...description} />
+        </div>
+    </div>
+);
+
+PlaceholderTab.propTypes = {
+    title: PropTypes.shape({
+        id: PropTypes.string
+    }),
+    description: PropTypes.shape({
+        id: PropTypes.string
+    }),
+    icon: PropTypes.string
+};
+
 const LanguageTab = ({
     canChangeLanguage,
     currentLocale,
@@ -316,6 +422,18 @@ const LanguageTab = ({
 
     return (
         <div className={styles.windowSettings}>
+            <div className={styles.windowSectionHeader}>
+                <img
+                    className={styles.windowTabIcon}
+                    src={languageIcon}
+                    draggable={false}
+                    width={16}
+                    height={16}
+                    alt=""
+                />
+                <FormattedMessage {...messages.languageTab} />
+                <div className={styles.windowSectionDivider} />
+            </div>
             {canChangeLanguage && (
                 <div
                     ref={languageMenuRef}
@@ -384,19 +502,23 @@ LanguageTab.propTypes = {
     onClickDesktopSettings: PropTypes.func
 };
 
-const SkyAppearanceTab = ({
+const LayoutTab = ({
     menuBarPosition,
     onChangeMenuBarPosition,
     tabLayout,
-    onChangeTabLayout
+    onChangeTabLayout,
+    contextMenuStyle,
+    onChangeContextMenuStyle
 }) => {
     const [positionMenuOpen, setPositionMenuOpen] = useState(false);
     const positionMenuRef = useRef(null);
     const [tabLayoutMenuOpen, setTabLayoutMenuOpen] = useState(false);
     const tabLayoutMenuRef = useRef(null);
+    const [contextMenuStyleOpen, setContextMenuStyleOpen] = useState(false);
+    const contextMenuStyleRef = useRef(null);
 
     useEffect(() => {
-        if (!positionMenuOpen && !tabLayoutMenuOpen) return undefined;
+        if (!positionMenuOpen && !tabLayoutMenuOpen && !contextMenuStyleOpen) return undefined;
         const handleMouseDown = e => {
             if (positionMenuRef.current && !positionMenuRef.current.contains(e.target)) {
                 setPositionMenuOpen(false);
@@ -404,10 +526,13 @@ const SkyAppearanceTab = ({
             if (tabLayoutMenuRef.current && !tabLayoutMenuRef.current.contains(e.target)) {
                 setTabLayoutMenuOpen(false);
             }
+            if (contextMenuStyleRef.current && !contextMenuStyleRef.current.contains(e.target)) {
+                setContextMenuStyleOpen(false);
+            }
         };
         document.addEventListener('mousedown', handleMouseDown);
         return () => document.removeEventListener('mousedown', handleMouseDown);
-    }, [positionMenuOpen, tabLayoutMenuOpen]);
+    }, [positionMenuOpen, tabLayoutMenuOpen, contextMenuStyleOpen]);
 
     const positionOptions = [
         {id: 'left', message: menuBarPositionOptions.left},
@@ -423,10 +548,26 @@ const SkyAppearanceTab = ({
     const currentTabLayout = tabLayoutOptionsList.find(o => o.id === tabLayout) ||
         tabLayoutOptionsList[0];
 
+    const contextMenuStyleOptionsList = [
+        {id: 'tw', message: contextMenuStyleOptions.tw},
+        {id: 'se', message: contextMenuStyleOptions.se}
+    ];
+    const currentContextMenuStyle = contextMenuStyleOptionsList.find(o => o.id === contextMenuStyle) ||
+        contextMenuStyleOptionsList[0];
+
     return (
         <div className={styles.windowSettings}>
-            <div className={styles.windowSectionTitle}>
+            <div className={styles.windowSectionHeader}>
+                <img
+                    className={styles.windowTabIcon}
+                    src={menuBarIcon}
+                    draggable={false}
+                    width={16}
+                    height={16}
+                    alt=""
+                />
                 <FormattedMessage {...messages.menuBarPositionLabel} />
+                <div className={styles.windowSectionDivider} />
             </div>
             <div
                 ref={positionMenuRef}
@@ -464,9 +605,17 @@ const SkyAppearanceTab = ({
                     </div>
                 )}
             </div>
-            <div className={styles.windowSectionDivider} />
-            <div className={styles.windowSectionTitle}>
+            <div className={styles.windowSectionHeader}>
+                <img
+                    className={styles.windowTabIcon}
+                    src={tabsIcon}
+                    draggable={false}
+                    width={16}
+                    height={16}
+                    alt=""
+                />
                 <FormattedMessage {...messages.tabLayoutLabel} />
+                <div className={styles.windowSectionDivider} />
             </div>
             <div
                 ref={tabLayoutMenuRef}
@@ -504,15 +653,65 @@ const SkyAppearanceTab = ({
                     </div>
                 )}
             </div>
+            <div className={styles.windowSectionHeader}>
+                <img
+                    className={styles.windowTabIcon}
+                    src={contextMenuIcon}
+                    draggable={false}
+                    width={16}
+                    height={16}
+                    alt=""
+                />
+                <FormattedMessage {...messages.contextMenuStyleLabel} />
+                <div className={styles.windowSectionDivider} />
+            </div>
+            <div
+                ref={contextMenuStyleRef}
+                className={styles.languageDropdown}
+            >
+                <button
+                    className={styles.languageDropdownButton}
+                    onClick={() => setContextMenuStyleOpen(open => !open)}
+                >
+                    <span><FormattedMessage {...currentContextMenuStyle.message} /></span>
+                    <span
+                        className={classNames(styles.languageDropdownCaret, {
+                            [styles.languageDropdownCaretOpen]: contextMenuStyleOpen
+                        })}
+                    >
+                        {'▾'}
+                    </span>
+                </button>
+                {contextMenuStyleOpen && (
+                    <div className={styles.languageDropdownMenu}>
+                        {contextMenuStyleOptionsList.map(option => (
+                            <div
+                                key={option.id}
+                                className={styles.windowOption}
+                                // eslint-disable-next-line react/jsx-no-bind
+                                onClick={() => {
+                                    onChangeContextMenuStyle(option.id);
+                                    setContextMenuStyleOpen(false);
+                                }}
+                            >
+                                <Check selected={contextMenuStyle === option.id} />
+                                <FormattedMessage {...option.message} />
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
         </div>
     );
 };
 
-SkyAppearanceTab.propTypes = {
+LayoutTab.propTypes = {
     menuBarPosition: PropTypes.string,
     onChangeMenuBarPosition: PropTypes.func,
     tabLayout: PropTypes.string,
-    onChangeTabLayout: PropTypes.func
+    onChangeTabLayout: PropTypes.func,
+    contextMenuStyle: PropTypes.string,
+    onChangeContextMenuStyle: PropTypes.func
 };
 
 const ThemeTab = ({
@@ -661,7 +860,7 @@ const MergedThemeTab = ({
                     <div className={styles.windowSectionHeader}>
                         <img
                             className={styles.windowTabIcon}
-                            src={lightModeIcon}
+                            src={themePaletteIcon}
                             draggable={false}
                             width={16}
                             height={16}
@@ -677,6 +876,7 @@ const MergedThemeTab = ({
                             icon={
                                 <img
                                     src={theme.gui === GUI_DARK ? lightModeIcon : darkModeIcon}
+                                    className={theme.gui === GUI_DARK ? undefined : styles.themeCardIconInvert}
                                     draggable={false}
                                     width={24}
                                     height={24}
@@ -744,6 +944,7 @@ const MergedThemeTab = ({
                                     icon={
                                         <img
                                             src={blockIcons[id]}
+                                            className={id === BLOCKS_CUSTOM ? styles.themeCardIconInvert : undefined}
                                             draggable={false}
                                             width={24}
                                             height={24}
@@ -881,10 +1082,12 @@ class SettingsWindow extends React.Component {
             currentLocale,
             menuBarPosition,
             tabLayout,
+            contextMenuStyle,
             onClickDesktopSettings,
             onChangeLanguage,
             onChangeMenuBarPosition,
             onChangeTabLayout,
+            onChangeContextMenuStyle,
             onChangeTheme,
             onChangeUiTheme,
             onOpenCustomSettings,
@@ -900,8 +1103,7 @@ class SettingsWindow extends React.Component {
             removeLimits,
             warpTimer,
             customStageSize,
-            disableCompiler,
-            intl
+            disableCompiler
         } = this.props;
 
         const {activeTab} = this.state;
@@ -954,17 +1156,12 @@ class SettingsWindow extends React.Component {
                         {SETTINGS_CATEGORIES.map(category => (
                             <React.Fragment key={category.id}>
                                 <button
-                                    className={styles.windowCategory}
+                                    className={classNames(styles.windowCategory, {
+                                        [styles.windowCategoryExpanded]:
+                                            !this.state.collapsedCategories[category.id]
+                                    })}
                                     onClick={this.handleToggleCategory.bind(this, category.id)}
                                 >
-                                    <span
-                                        className={classNames(styles.windowCategoryCaret, {
-                                            [styles.windowCategoryCaretExpanded]:
-                                                !this.state.collapsedCategories[category.id]
-                                        })}
-                                    >
-                                        {'▸'}
-                                    </span>
                                     <img
                                         className={styles.windowTabIcon}
                                         src={category.icon}
@@ -973,7 +1170,17 @@ class SettingsWindow extends React.Component {
                                         height={16}
                                         alt=""
                                     />
-                                    <FormattedMessage {...category.message} />
+                                    <span className={styles.windowCategoryLabel}>
+                                        <FormattedMessage {...category.message} />
+                                    </span>
+                                    <span
+                                        className={classNames(styles.windowCategoryCaret, {
+                                            [styles.windowCategoryCaretExpanded]:
+                                                !this.state.collapsedCategories[category.id]
+                                        })}
+                                    >
+                                        {'▸'}
+                                    </span>
                                 </button>
                                 {!this.state.collapsedCategories[category.id] && category.items.map(item => (
                                     <button
@@ -1007,11 +1214,41 @@ class SettingsWindow extends React.Component {
                             />
                         )}
                         {activeTab === 'sky-appearance' && (
-                            <SkyAppearanceTab
+                            <PlaceholderTab
+                                title={messages.skyAppearanceTab}
+                                description={messages.skyAppearancePlaceholder}
+                                icon={settingsIcon}
+                            />
+                        )}
+                        {activeTab === 'layout' && (
+                            <LayoutTab
                                 menuBarPosition={menuBarPosition}
                                 onChangeMenuBarPosition={onChangeMenuBarPosition}
                                 tabLayout={tabLayout}
                                 onChangeTabLayout={onChangeTabLayout}
+                                contextMenuStyle={contextMenuStyle}
+                                onChangeContextMenuStyle={onChangeContextMenuStyle}
+                            />
+                        )}
+                        {activeTab === 'wallpaper' && (
+                            <PlaceholderTab
+                                title={messages.wallpaperTab}
+                                description={messages.wallpaperPlaceholder}
+                                icon={wallpaperIcon}
+                            />
+                        )}
+                        {activeTab === 'font' && (
+                            <PlaceholderTab
+                                title={messages.fontTab}
+                                description={messages.fontPlaceholder}
+                                icon={fontIcon}
+                            />
+                        )}
+                        {activeTab === 'loading' && (
+                            <PlaceholderTab
+                                title={messages.loadingTab}
+                                description={messages.loadingPlaceholder}
+                                icon={loadingIcon}
                             />
                         )}
                         {activeTab === 'theme' && (
@@ -1041,10 +1278,12 @@ SettingsWindow.propTypes = {
     defaultTab: PropTypes.oneOf(['settings', 'advanced']),
     menuBarPosition: PropTypes.string,
     tabLayout: PropTypes.string,
+    contextMenuStyle: PropTypes.string,
     onClickDesktopSettings: PropTypes.func,
     onChangeLanguage: PropTypes.func,
     onChangeMenuBarPosition: PropTypes.func,
     onChangeTabLayout: PropTypes.func,
+    onChangeContextMenuStyle: PropTypes.func,
     onChangeTheme: PropTypes.func,
     onChangeUiTheme: PropTypes.func,
     onOpenCustomSettings: PropTypes.func,
@@ -1084,6 +1323,7 @@ const mapStateToProps = state => ({
     uiTheme: state.scratchGui.uiTheme,
     menuBarPosition: state.scratchGui.menuBarPosition,
     tabLayout: state.scratchGui.tabLayout,
+    contextMenuStyle: state.scratchGui.contextMenuStyle,
     vm: state.scratchGui.vm,
     isEmbedded: state.scratchGui.mode.isEmbedded,
     framerate: state.scratchGui.tw.framerate,
@@ -1117,6 +1357,11 @@ const mapDispatchToProps = dispatch => ({
     onChangeTabLayout: layout => {
         dispatch(setTabLayout(layout));
         persistTabLayout(layout);
+    },
+    onChangeContextMenuStyle: style => {
+        dispatch(setContextMenuStyle(style));
+        persistContextMenuStyle(style);
+        applyContextMenuStyle(style);
     }
 });
 

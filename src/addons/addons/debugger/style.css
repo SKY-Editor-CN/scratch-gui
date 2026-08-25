@@ -28,6 +28,8 @@
   border-radius: 50%;
 }
 
+/* 非 SKYEditor 主题（如 TurboWarp）下的默认窗口：恢复原始 565px×25rem 外观。
+   SKYEditor 主题由仿 Win11 引擎在启用时以内联样式覆盖为 720×512。 */
 .sa-debugger-interface {
   display: none;
   position: absolute;
@@ -278,15 +280,81 @@
   display: none;
 }
 
-/* ===== SKYEditor 统一窗口样式（uiTheme === 'sky-editor' 时启用） ===== */
-/* 复刻 Win11Window 完整窗口观感：独立悬浮窗口 + 40px 主题色标题栏 + 窗口控件风格按钮 */
+/* ===== "更多"下拉菜单（所有主题生效） ===== */
+/* 下拉按钮固定宽高与图标按钮一致，点击后弹出 fixed 定位浮层（不参与 flex 布局，避免挤压其他按钮） */
+.sa-debugger-interface .sa-debugger-header-buttons .sa-debugger-dropdown-button {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 12px;
+  height: 100%;
+}
+.sa-debugger-dropdown {
+  position: fixed;
+  z-index: 1000;
+  min-width: 160px;
+  padding: 4px;
+  background-color: var(--looks-secondary);
+  border: 1px solid var(--looks-secondary-dark);
+  border-radius: 6px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+  color: #fff;
+  font-size: 12px;
+  user-select: none;
+}
+.sa-debugger-dropdown-item {
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+  color: #fff;
+}
+.sa-debugger-dropdown-item:hover {
+  background-color: rgba(0, 0, 0, 0.2);
+}
+.sa-debugger-dropdown-item:active {
+  background-color: rgba(0, 0, 0, 0.3);
+}
 
-/* 1. 窗口容器：高光描边 + 深层投影，深色编辑器背景下也能呈现独立悬浮窗口 */
+/* ===== SKYEditor 统一窗口样式（uiTheme === 'sky-editor' 时启用） ===== */
+/* 窗口交互（标题栏拖动 / 双击最大化 / 右键系统菜单 / 最小化最大化关闭 / 8 向 resize）
+   完全复用共享引擎 createSkyWin11Window（src/addons/libraries/common/sky-win11-window.js，
+   逻辑提炼自 components/tw-win11-window/win11-window.jsx），插件不再保留独立实现；
+   此处仅按 win11-window.css 观感提供引擎交互元素的样式
+   （类名语义对齐：win11-controls / win11-button / win11-resize-handle-* /
+   win11-context-menu / win11-menu-item-* / win11-maximized / win11-minimized）。 */
+
+/* 1. 窗口容器：高光描边 + 深层投影，深色编辑器背景下也能呈现独立悬浮窗口。
+   position: fixed 使引擎以视口为基准做初始居中 / 拖动 / 最大化铺满。 */
 .sa-debugger-interface.sa-debugger-sky-window {
+  position: fixed;
+  box-sizing: border-box;
   border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 8px;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.55), 0 2px 8px rgba(0, 0, 0, 0.3);
   overflow: hidden;
+  /* 覆盖 .card 自带的 cursor:move（系统四向箭头），SKY 模式统一使用自有光标 */
+  cursor: default;
+}
+/* 最大化：铺满视口（引擎仅切换类，不写死坐标） */
+.sa-debugger-interface.sa-debugger-sky-window.win11-maximized {
+  left: 0 !important;
+  top: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  border-radius: 0;
+}
+/* 最小化：仅保留标题栏 */
+.sa-debugger-interface.sa-debugger-sky-window.win11-minimized {
+  height: 40px !important;
+}
+.sa-debugger-interface.sa-debugger-sky-window.win11-minimized .sa-debugger-tab-content,
+.sa-debugger-interface.sa-debugger-sky-window.win11-minimized .sa-debugger-compiler-warning {
+  display: none !important;
+}
+/* 拖动 / 菜单移动 / 缩放进行中：关闭过渡，避免引擎写回位置时动画跳变 */
+.sa-debugger-interface.sa-debugger-sky-window.win11-interacting {
+  transition: none !important;
 }
 
 /* 2. 标题栏：恒定 40px 高，主题色 + 轻渐变质感 + 底部深色分隔线 */
@@ -302,6 +370,8 @@
   border-color: var(--looks-secondary-dark);
   border-bottom: 1px solid rgba(0, 0, 0, 0.25);
   color: #fff;
+  /* 悬停标题栏显示抓取手，不再出现系统四向箭头 */
+  cursor: grab;
 }
 
 /* 3. 标题：图标 + 文字（复刻 Win11Window 标题栏形式，文字恒白） */
@@ -355,6 +425,8 @@
   color: #fff;
   border: none;
   border-radius: 0;
+  /* 窗口控件按钮恢复点击指针，不继承标题栏的抓取手 */
+  cursor: pointer;
 }
 .sa-debugger-sky-window .sa-debugger-header-buttons [class*="shrink-expand-button"]:hover {
   background: rgba(0, 0, 0, 0.1);
@@ -384,15 +456,15 @@
   color: var(--ui-modal-foreground);
 }
 
-/* 7. Win11 窗口控件（最小化/最大化/关闭），仅 sky-editor 显示 */
-.sa-debugger-sky-window .sa-debugger-sky-controls {
+/* 7. Win11 窗口控件（最小化/最大化/关闭），由共享引擎创建，仅 sky-editor 显示 */
+.sa-debugger-sky-window .win11-controls {
   display: flex;
   align-items: stretch;
   height: 40px;
   margin-left: 4px;
   flex-shrink: 0;
 }
-.sa-debugger-sky-window .sa-debugger-sky-control {
+.sa-debugger-sky-window .win11-button {
   width: 46px;
   height: 40px;
   padding: 0;
@@ -406,29 +478,112 @@
   color: #fff;
   cursor: pointer;
 }
-.sa-debugger-sky-window .sa-debugger-sky-control:hover {
+.sa-debugger-sky-window .win11-button:hover {
   background: rgba(0, 0, 0, 0.1);
 }
-.sa-debugger-sky-window .sa-debugger-sky-control:active {
+.sa-debugger-sky-window .win11-button:active {
   background: rgba(0, 0, 0, 0.18);
 }
-.sa-debugger-sky-window .sa-debugger-sky-control:last-child:hover {
+.sa-debugger-sky-window .win11-button.win11-close:hover {
   background: #e81123;
 }
-
-/* 8. 最小化：仅保留标题栏 */
-.sa-debugger-interface.sa-debugger-sky-window.sa-debugger-sky-minimized {
-  height: 40px !important;
-}
-.sa-debugger-sky-window.sa-debugger-sky-minimized .sa-debugger-tab-content,
-.sa-debugger-sky-window.sa-debugger-sky-minimized .sa-debugger-compiler-warning {
-  display: none !important;
+.sa-debugger-sky-window .win11-button svg {
+  display: block;
 }
 
-/* 9. 最大化：铺满视口 */
-.sa-debugger-interface.sa-debugger-sky-window.sa-debugger-sky-maximized {
-  left: 0 !important;
-  top: 0 !important;
-  width: 100vw !important;
-  height: 100vh !important;
+/* 8. 标题栏右键系统菜单（引擎 append 到 body，调试器专用）：默认 TurboWarp 原始浅色
+   样式（与 win11-window.css 一致），SKYEditor 深色样式通过 --sky-ctx-menu-* CSS 变量
+   下发（设置 -> SKYEditor 外观 -> 右键菜单样式），两选项下均命中本规则。
+   本菜单即「SKYEditor样式」选项对齐的参考观感（200px 宽 / 4px 内边距 / 12px 字），
+   尺寸同样走变量，保证设置窗口菜单与调试器菜单在 SE 模式下观感完全一致。 */
+.win11-context-menu {
+  position: fixed;
+  z-index: var(--sky-ctx-menu-z-index, 1000);
+  min-width: var(--sky-ctx-menu-min-width, 200px);
+  padding: var(--sky-ctx-menu-padding, 4px);
+  font-size: var(--sky-ctx-menu-font-size, 12px);
+  user-select: none;
+  background-color: var(--sky-ctx-menu-bg, #fff);
+  border: 1px solid var(--sky-ctx-menu-border, rgba(0, 0, 0, 0.15));
+  border-radius: var(--sky-ctx-menu-radius, 4px);
+  box-shadow: var(--sky-ctx-menu-shadow, 0 0 5px 1px rgba(0, 0, 0, 0.25));
+  color: var(--sky-ctx-menu-fg, inherit);
+}
+.win11-menu-item {
+  padding: var(--sky-ctx-menu-item-padding, 6px 12px);
+  border-radius: var(--sky-ctx-menu-item-radius, 4px);
+  color: var(--sky-ctx-menu-fg, inherit);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.win11-menu-item:hover {
+  background-color: var(--sky-ctx-menu-hover-bg, rgba(0, 0, 0, 0.08));
+  color: var(--sky-ctx-menu-hover-fg, inherit);
+}
+.win11-menu-item-divider {
+  margin: 4px 0;
+  border-top: 1px solid var(--sky-ctx-menu-divider, rgba(0, 0, 0, 0.15));
+}
+
+/* 9. 8 向 resize 热区（引擎创建，贴窗口外缘，6px 触发条 + 12px 角） */
+.sa-debugger-sky-window .win11-resize-handle {
+  position: absolute;
+  z-index: 999;
+  display: none;
+}
+.sa-debugger-sky-window .win11-resize-handle-n {
+  top: 0;
+  left: 8px;
+  right: 8px;
+  height: 6px;
+  cursor: n-resize;
+}
+.sa-debugger-sky-window .win11-resize-handle-s {
+  bottom: 0;
+  left: 8px;
+  right: 8px;
+  height: 6px;
+  cursor: s-resize;
+}
+.sa-debugger-sky-window .win11-resize-handle-e {
+  right: 0;
+  top: 8px;
+  bottom: 8px;
+  width: 6px;
+  cursor: e-resize;
+}
+.sa-debugger-sky-window .win11-resize-handle-w {
+  left: 0;
+  top: 8px;
+  bottom: 8px;
+  width: 6px;
+  cursor: w-resize;
+}
+.sa-debugger-sky-window .win11-resize-handle-ne {
+  top: 0;
+  right: 0;
+  width: 12px;
+  height: 12px;
+  cursor: ne-resize;
+}
+.sa-debugger-sky-window .win11-resize-handle-nw {
+  top: 0;
+  left: 0;
+  width: 12px;
+  height: 12px;
+  cursor: nw-resize;
+}
+.sa-debugger-sky-window .win11-resize-handle-se {
+  bottom: 0;
+  right: 0;
+  width: 12px;
+  height: 12px;
+  cursor: se-resize;
+}
+.sa-debugger-sky-window .win11-resize-handle-sw {
+  bottom: 0;
+  left: 0;
+  width: 12px;
+  height: 12px;
+  cursor: sw-resize;
 }
